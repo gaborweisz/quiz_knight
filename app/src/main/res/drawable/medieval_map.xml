@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="1080dp"
+    android:height="1920dp"
+    android:viewportWidth="1080"
+    android:viewportHeight="1920">
+
+    <!-- ── Parchment base ── -->
+    <path android:fillColor="#C8A86B" android:pathData="M0,0 L1080,0 L1080,1920 L0,1920 Z"/>
+    <!-- Parchment texture patches -->
+    <path android:fillColor="#BF9D5E" android:pathData="M0,0 Q270,80 540,20 Q810,80 1080,0 L1080,300 Q810,220 540,280 Q270,220 0,300 Z"/>
+    <path android:fillColor="#D4B47A" android:pathData="M0,600 Q270,680 540,620 Q810,560 1080,640 L1080,900 Q810,820 540,880 Q270,960 0,880 Z"/>
+    <path android:fillColor="#BF9D5E" android:pathData="M0,1200 Q270,1120 540,1180 Q810,1240 1080,1160 L1080,1500 Q810,1580 540,1520 Q270,1460 0,1540 Z"/>
+    <path android:fillColor="#C8A86B" android:pathData="M0,1600 Q270,1680 540,1640 Q810,1600 1080,1680 L1080,1920 L0,1920 Z"/>
+
+    <!-- ── Aged edge vignette ── -->
+    <path android:fillColor="#80704020" android:pathData="M0,0 L120,0 L0,120 Z"/>
+    <path android:fillColor="#80704020" android:pathData="M1080,0 L960,0 L1080,120 Z"/>
+    <path android:fillColor="#80704020" android:pathData="M0,1920 L120,1920 L0,1800 Z"/>
+    <path android:fillColor="#80704020" android:pathData="M1080,1920 L960,1920 L1080,1800 Z"/>
+    <!-- border burn -->
+    <path android:strokeColor="#80502800" android:strokeWidth="32" android:fillColor="#00000000"
+        android:pathData="M16,16 L1064,16 L1064,1904 L16,1904 Z"/>
+    <path android:strokeColor="#60602800" android:strokeWidth="12" android:fillColor="#00000000"
+        android:pathData="M40,40 L1040,40 L1040,1880 L40,1880 Z"/>
+
+    <!-- ── Ocean / sea regions (top & bottom) ── -->
+    <path android:fillColor="#A0789ABD"
+        android:pathData="M0,0 Q200,60 400,30 Q600,0 800,50 Q1000,100 1080,60 L1080,0 Z"/>
+    <path android:fillColor="#906B8CAD"
+        android:pathData="M0,1750 Q200,1700 400,1730 Q600,1760 800,1720 Q1000,1680 1080,1720 L1080,1920 L0,1920 Z"/>
+
+    <!-- ── Rivers ── -->
+    <!-- Main river: top-right to center -->
+    <path android:strokeColor="#806B9AAD" android:strokeWidth="10" android:fillColor="#00000000"
+        android:pathData="M864,288 Q820,380 790,480 Q760,560 756,960"/>
+    <!-- River from center south -->
+    <path android:strokeColor="#806B9AAD" android:strokeWidth="10" android:fillColor="#00000000"
+        android:pathData="M486,960 Q500,1100 480,1200 Q460,1350 486,1632"/>
+    <!-- Small river left -->
+    <path android:strokeColor="#706B9AAD" android:strokeWidth="7" android:fillColor="#00000000"
+        android:pathData="M130,288 Q160,400 140,500 Q120,600 130,960"/>
+
+    <!-- ── Forest patches ── -->
+    <!-- Top-left forest near Ironwood -->
+    <path android:fillColor="#707D6B3A" android:pathData="M30,200 Q80,160 140,200 Q180,240 160,300 Q120,340 60,300 Q20,260 30,200 Z"/>
+    <path android:fillColor="#605E7A2E" android:pathData="M60,180 Q100,140 150,170 Q170,210 140,260 Q100,280 60,240 Q40,210 60,180 Z"/>
+    <!-- tree dots -->
+    <path android:fillColor="#80556B2A" android:pathData="M80,220 Q90,210 100,220 Q100,235 90,238 Q80,235 80,220 Z"/>
+    <path android:fillColor="#80556B2A" android:pathData="M110,195 Q120,185 130,195 Q130,210 120,213 Q110,210 110,195 Z"/>
+    <path android:fillColor="#80556B2A" android:pathData="M65,250 Q75,240 85,250 Q85,265 75,268 Q65,265 65,250 Z"/>
+
+    <!-- Right forests near Duskholm -->
+    <path android:fillColor="#707D6B3A" android:pathData="M900,150 Q960,110 1020,160 Q1050,210 1010,270 Q960,300 900,260 Q870,210 900,150 Z"/>
+    <path android:fillColor="#80556B2A" android:pathData="M920,190 Q932,178 944,190 Q944,208 932,211 Q920,208 920,190 Z"/>
+    <path android:fillColor="#80556B2A" android:pathData="M960,165 Q972,153 984,165 Q984,183 972,186 Q960,183 960,165 Z"/>
+    <path android:fillColor="#80556B2A" android:pathData="M940,220 Q952,208 964,220 Q964,238 952,241 Q940,238 940,220 Z"/>
+
+    <!-- Bottom forests near Ferndale -->
+    <path android:fillColor="#707D6B3A" android:pathData="M30,1500 Q80,1460 140,1500 Q180,1540 160,1600 Q120,1640 60,1600 Q20,1560 30,1500 Z"/>
+    <path android:fillColor="#80556B2A" android:pathData="M65,1530 Q77,1518 89,1530 Q89,1548 77,1551 Q65,1548 65,1530 Z"/>
+    <path android:fillColor="#80556B2A" android:pathData="M95,1505 Q107,1493 119,1505 Q119,1523 107,1526 Q95,1523 95,1505 Z"/>
+
+    <!-- Center forests -->
+    <path android:fillColor="#60607840" android:pathData="M250,750 Q290,720 330,750 Q350,780 330,820 Q290,840 250,820 Q230,790 250,750 Z"/>
+    <path android:fillColor="#80556B2A" android:pathData="M268,775 Q278,763 288,775 Q288,790 278,793 Q268,790 268,775 Z"/>
+    <path android:fillColor="#80556B2A" android:pathData="M298,755 Q308,743 318,755 Q318,770 308,773 Q298,770 298,755 Z"/>
+
+    <!-- Bottom-right forest near Solaris -->
+    <path android:fillColor="#707D6B3A" android:pathData="M900,1500 Q960,1460 1020,1500 Q1050,1540 1010,1590 Q960,1620 900,1580 Q870,1550 900,1500 Z"/>
+    <path android:fillColor="#80556B2A" android:pathData="M920,1530 Q932,1518 944,1530 Q944,1548 932,1551 Q920,1548 920,1530 Z"/>
+    <path android:fillColor="#80556B2A" android:pathData="M955,1510 Q967,1498 979,1510 Q979,1528 967,1531 Q955,1528 955,1510 Z"/>
+
+    <!-- ── Mountains ── -->
+    <!-- Between top row and middle row -->
+    <path android:fillColor="#80917060" android:pathData="M600,600 L640,530 L680,600 Z"/>
+    <path android:fillColor="#70A08070" android:pathData="M620,600 L648,545 L676,600 Z"/>
+    <path android:fillColor="#80917060" android:pathData="M650,620 L690,550 L730,620 Z"/>
+    <path android:fillColor="#70A08070" android:pathData="M668,620 L696,563 L724,620 Z"/>
+    <!-- Right side mountains -->
+    <path android:fillColor="#80917060" android:pathData="M950,700 L990,630 L1030,700 Z"/>
+    <path android:fillColor="#70A08070" android:pathData="M968,700 L996,644 L1024,700 Z"/>
+    <path android:fillColor="#80917060" android:pathData="M960,740 L1000,670 L1040,740 Z"/>
+    <!-- Left side hills -->
+    <path android:fillColor="#70907558" android:pathData="M50,700 Q90,650 130,700 Q150,730 130,760 Q90,780 50,760 Q30,730 50,700 Z"/>
+    <path android:fillColor="#70907558" android:pathData="M50,1300 Q90,1250 130,1300 Q150,1330 130,1360 Q90,1380 50,1360 Q30,1330 50,1300 Z"/>
+
+    <!-- ── Roads between settlements (matching graph edges) ── -->
+    <!-- ironwood(130,288) to ashford(486,230) -->
+    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M130,288 Q240,260 486,230"/>
+    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M130,288 Q240,260 486,230"/>
+
+    <!-- ironwood(130,288) to millhaven(130,960) -->
+    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M130,288 Q110,500 130,960"/>
+    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M130,288 Q110,500 130,960"/>
+
+    <!-- ashford(486,230) to duskholm(864,288) -->
+    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M486,230 Q660,210 864,288"/>
+    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M486,230 Q660,210 864,288"/>
+
+    <!-- ashford(486,230) to stonekeep(486,960) -->
+    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M486,230 Q510,500 486,960"/>
+    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M486,230 Q510,500 486,960"/>
+
+    <!-- duskholm(864,288) to brightwater(864,960) -->
+    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M864,288 Q890,500 864,960"/>
+    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M864,288 Q890,500 864,960"/>
+
+    <!-- millhaven(130,960) to stonekeep(486,960) -->
+    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M130,960 Q280,940 486,960"/>
+    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M130,960 Q280,940 486,960"/>
+
+    <!-- millhaven(130,960) to ferndale(130,1632) -->
+    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M130,960 Q110,1200 130,1632"/>
+    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M130,960 Q110,1200 130,1632"/>
+
+    <!-- stonekeep(486,960) to brightwater(864,960) -->
+    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M486,960 Q660,940 864,960"/>
+    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M486,960 Q660,940 864,960"/>
+
+    <!-- stonekeep(486,960) to ravenspire(486,1632) -->
+    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M486,960 Q510,1200 486,1632"/>
+    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M486,960 Q510,1200 486,1632"/>
+
+    <!-- brightwater(864,960) to solaris(864,1632) -->
+    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M864,960 Q890,1200 864,1632"/>
+    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M864,960 Q890,1200 864,1632"/>
+
+    <!-- ferndale(130,1632) to ravenspire(486,1632) -->
+    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M130,1632 Q280,1612 486,1632"/>
+    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M130,1632 Q280,1612 486,1632"/>
+
+    <!-- ravenspire(486,1632) to solaris(864,1632) -->
+    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M486,1632 Q660,1612 864,1632"/>
+    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:pathData="M486,1632 Q660,1612 864,1632"/>
+
+    <!-- ── Decorative compass rose (bottom-right) ── -->
+    <path android:fillColor="#80704020"
+        android:pathData="M980,1820 L990,1790 L1000,1820 L1030,1810 L1000,1820 L1010,1850 L980,1840 L950,1850 L980,1820 Z"/>
+    <path android:fillColor="#70906040"
+        android:pathData="M990,1810 L994,1796 L998,1810 L1012,1806 L998,1810 L1002,1824 L988,1820 L974,1824 L990,1810 Z"/>
+    <path android:strokeColor="#90704020" android:strokeWidth="3" android:fillColor="#00000000"
+        android:pathData="M990,1790 L990,1852 M958,1821 L1022,1821"/>
+    <path android:fillColor="#80C8A86B" android:pathData="M990,1793 L993,1809 L990,1812 L987,1809 Z"/>
+    <path android:fillColor="#90704020" android:pathData="M990,1849 L993,1833 L990,1830 L987,1833 Z"/>
+
+    <!-- ── Title banner ── -->
+    <path android:fillColor="#90502800"
+        android:pathData="M200,1870 Q540,1840 880,1870 Q900,1880 880,1895 Q540,1918 200,1895 Q180,1885 200,1870 Z"/>
+    <path android:strokeColor="#C0D4AF37" android:strokeWidth="2" android:fillColor="#00000000"
+        android:pathData="M205,1873 Q540,1845 875,1873 Q893,1882 875,1892 Q540,1915 205,1892 Q187,1883 205,1873 Z"/>
+
+    <!-- ── Ink stain / age spots ── -->
+    <path android:fillColor="#15502800" android:pathData="M700,400 Q730,380 750,400 Q760,420 740,430 Q710,440 700,420 Z"/>
+    <path android:fillColor="#10502800" android:pathData="M200,1100 Q220,1090 230,1110 Q225,1125 205,1120 Z"/>
+    <path android:fillColor="#10502800" android:pathData="M800,1300 Q820,1285 835,1300 Q838,1318 818,1322 Z"/>
+    <path android:fillColor="#12502800" android:pathData="M350,500 Q365,492 372,505 Q368,516 353,513 Z"/>
+
+</vector>
+
