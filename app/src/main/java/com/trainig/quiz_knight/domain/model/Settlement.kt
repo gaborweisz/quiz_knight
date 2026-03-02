@@ -28,7 +28,10 @@ enum class QuizTopic(val displayName: String) {
     BIOLOGY("Biology"),
     CHEMISTRY("Chemistry"),
     SPACE("Space"),
-    COMPUTER_SCIENCE("Computer Science")
+    COMPUTER_SCIENCE("Computer Science"),
+    FILM("Film"),
+    ART_HISTORY("Art History"),
+    PHYSICS("Physics")
 }
 
 /**
@@ -36,4 +39,3 @@ enum class QuizTopic(val displayName: String) {
  * Multiplied by the actual canvas size at render time.
  */
 data class MapPosition(val x: Float, val y: Float)
-

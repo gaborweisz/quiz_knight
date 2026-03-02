@@ -1,18 +1,18 @@
 # ⚔️ Quiz Knight
 
-> *A medieval knowledge quest — conquer the realm by answering trivia across 9 ancient settlements.*
+> *A medieval knowledge quest — conquer the realm by answering trivia across 12 ancient settlements.*
 
 ---
 
 ## 🗺️ The Story
 
-You are a knight on a quest to conquer a medieval realm. The land is divided into nine settlements, each guarded by a different domain of knowledge. To claim a settlement, you must prove your wisdom by passing its quiz. Conquer them all and the realm is yours!
+You are a knight on a quest to conquer a medieval realm. The land is divided into twelve settlements, each guarded by a different domain of knowledge. To claim a settlement, you must prove your wisdom by passing its quiz. Conquer them all and the realm is yours!
 
 ---
 
 ## 🏰 The Settlements
 
-The map is laid out as a 3×3 grid of connected settlements, linked by roads. The knight starts at **Stonekeep**, in the heart of the realm.
+The map is laid out as a 3×4 grid of connected settlements, linked by roads. The knight starts at **Stonekeep**, in the heart of the realm.
 
 | Settlement | Type | Quiz Topic |
 |---|---|---|
@@ -25,6 +25,9 @@ The map is laid out as a 3×3 grid of connected settlements, linked by roads. Th
 | 🏘️ Ferndale | Village | Chemistry |
 | 🏙️ Ravenspire | City | Space |
 | 🏙️ Solaris | City | Computer Science |
+| 🏘️ Cinehaven | Village | Film |
+| 🏙️ Gallerymoor | City | Art History |
+| 🏙️ Newtonia | City | Physics |
 
 ### Roads between settlements
 
@@ -34,6 +37,8 @@ The map is laid out as a 3×3 grid of connected settlements, linked by roads. Th
 [Millhaven] ── [Stonekeep] ── [Brightwater]
     │              │              │
 [Ferndale] ── [Ravenspire] ── [Solaris]
+    │              │              │
+[Cinehaven] ── [Gallerymoor] ── [Newtonia]
 ```
 
 You can only travel to settlements directly connected by a road.
@@ -47,7 +52,7 @@ You can only travel to settlements directly connected by a road.
 3. **Answer 12 multiple-choice questions** — each question has 4 possible answers.
 4. **Pass the quiz** to conquer the settlement and mark it as complete on the map.
 5. **Fail the quiz** and you can try again — the settlement remains unconquered.
-6. **Conquer all 9 settlements** to complete the game and see the victory screen.
+6. **Conquer all 12 settlements** to complete the game and see the victory screen.
 
 ---
 
@@ -66,7 +71,7 @@ You can only travel to settlements directly connected by a road.
 - After each quiz you see a **result screen**:
   - 🏆 **Victory!** — *You have conquered this settlement!*
   - 💀 **Defeated!** — *The quiz was not passed. Try again!*
-- After conquering **all 9 settlements**, the grand **Victory screen** appears:
+- After conquering **all 12 settlements**, the grand **Victory screen** appears:
   - 👑 **Realm Conquered!** — *You have visited every settlement and proven your knowledge across all realms of wisdom!*
 - From the victory screen you can start a **new game** and replay the full quest.
 
@@ -80,7 +85,7 @@ A small knight figure travels the map and always stands at your current settleme
 
 ## 📚 Quiz Topics
 
-| Topic | Settlements |
+| Topic | Settlement |
 |---|---|
 | Literature | Ironwood |
 | General History | Ashford |
@@ -91,6 +96,9 @@ A small knight figure travels the map and always stands at your current settleme
 | Chemistry | Ferndale |
 | Space | Ravenspire |
 | Computer Science | Solaris |
+| Film | Cinehaven |
+| Art History | Gallerymoor |
+| Physics | Newtonia |
 
 Each topic contains **50 questions**, from which a random selection of 12 is presented each time you play a settlement.
 

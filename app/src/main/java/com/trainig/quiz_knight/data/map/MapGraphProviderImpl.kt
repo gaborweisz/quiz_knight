@@ -7,7 +7,7 @@ import javax.inject.Singleton
 
 /**
  * Defines the static medieval map graph.
- * 9 settlements (matching the 9 quiz topics) connected by roads.
+ * 12 settlements (matching the 12 quiz topics) connected by roads.
  * Positions are normalized (0f..1f) for Canvas rendering.
  *
  * Graph layout (roughly):
@@ -17,6 +17,8 @@ import javax.inject.Singleton
  *   [Millhaven]--[Stonekeep]--[Brightwater]
  *       |            |            |
  *   [Ferndale]---[Ravenspire]--[Solaris]
+ *       |            |            |
+ *   [Cinehaven]--[Gallerymoor]-[Newtonia]
  */
 @Singleton
 class MapGraphProviderImpl @Inject constructor() : MapGraphProvider {
@@ -27,7 +29,7 @@ class MapGraphProviderImpl @Inject constructor() : MapGraphProvider {
             name = "Ironwood",
             type = SettlementType.VILLAGE,
             topic = QuizTopic.LITERATURE,
-            position = MapPosition(0.12f, 0.15f),
+            position = MapPosition(0.12f, 0.12f),
             connectedTo = listOf("ashford", "millhaven")
         ),
         Settlement(
@@ -35,7 +37,7 @@ class MapGraphProviderImpl @Inject constructor() : MapGraphProvider {
             name = "Ashford",
             type = SettlementType.CITY,
             topic = QuizTopic.GENERAL_HISTORY,
-            position = MapPosition(0.45f, 0.12f),
+            position = MapPosition(0.45f, 0.10f),
             connectedTo = listOf("ironwood", "duskholm", "stonekeep")
         ),
         Settlement(
@@ -43,7 +45,7 @@ class MapGraphProviderImpl @Inject constructor() : MapGraphProvider {
             name = "Duskholm",
             type = SettlementType.VILLAGE,
             topic = QuizTopic.SCIENCE_HISTORY,
-            position = MapPosition(0.80f, 0.15f),
+            position = MapPosition(0.80f, 0.12f),
             connectedTo = listOf("ashford", "brightwater")
         ),
         Settlement(
@@ -51,7 +53,7 @@ class MapGraphProviderImpl @Inject constructor() : MapGraphProvider {
             name = "Millhaven",
             type = SettlementType.VILLAGE,
             topic = QuizTopic.ART,
-            position = MapPosition(0.12f, 0.50f),
+            position = MapPosition(0.12f, 0.38f),
             connectedTo = listOf("ironwood", "stonekeep", "ferndale")
         ),
         Settlement(
@@ -59,7 +61,7 @@ class MapGraphProviderImpl @Inject constructor() : MapGraphProvider {
             name = "Stonekeep",
             type = SettlementType.CITY,
             topic = QuizTopic.GEOGRAPHY,
-            position = MapPosition(0.45f, 0.50f),
+            position = MapPosition(0.45f, 0.37f),
             connectedTo = listOf("ashford", "millhaven", "brightwater", "ravenspire")
         ),
         Settlement(
@@ -67,7 +69,7 @@ class MapGraphProviderImpl @Inject constructor() : MapGraphProvider {
             name = "Brightwater",
             type = SettlementType.VILLAGE,
             topic = QuizTopic.BIOLOGY,
-            position = MapPosition(0.80f, 0.50f),
+            position = MapPosition(0.80f, 0.38f),
             connectedTo = listOf("duskholm", "stonekeep", "solaris")
         ),
         Settlement(
@@ -75,24 +77,48 @@ class MapGraphProviderImpl @Inject constructor() : MapGraphProvider {
             name = "Ferndale",
             type = SettlementType.VILLAGE,
             topic = QuizTopic.CHEMISTRY,
-            position = MapPosition(0.12f, 0.85f),
-            connectedTo = listOf("millhaven", "ravenspire")
+            position = MapPosition(0.12f, 0.63f),
+            connectedTo = listOf("millhaven", "ravenspire", "cinehaven")
         ),
         Settlement(
             id = "ravenspire",
             name = "Ravenspire",
             type = SettlementType.CITY,
             topic = QuizTopic.SPACE,
-            position = MapPosition(0.45f, 0.85f),
-            connectedTo = listOf("stonekeep", "ferndale", "solaris")
+            position = MapPosition(0.45f, 0.62f),
+            connectedTo = listOf("stonekeep", "ferndale", "solaris", "gallerymoor")
         ),
         Settlement(
             id = "solaris",
             name = "Solaris",
             type = SettlementType.CITY,
             topic = QuizTopic.COMPUTER_SCIENCE,
-            position = MapPosition(0.80f, 0.85f),
-            connectedTo = listOf("brightwater", "ravenspire")
+            position = MapPosition(0.80f, 0.63f),
+            connectedTo = listOf("brightwater", "ravenspire", "newtonia")
+        ),
+        Settlement(
+            id = "cinehaven",
+            name = "Cinehaven",
+            type = SettlementType.VILLAGE,
+            topic = QuizTopic.FILM,
+            position = MapPosition(0.12f, 0.88f),
+            connectedTo = listOf("ferndale", "gallerymoor", "newtonia")
+        ),
+        Settlement(
+            id = "gallerymoor",
+            name = "Gallerymoor",
+            type = SettlementType.CITY,
+            topic = QuizTopic.ART_HISTORY,
+            position = MapPosition(0.45f, 0.87f),
+            connectedTo = listOf("ravenspire", "cinehaven", "newtonia")
+        ),
+        Settlement(
+            id = "newtonia",
+            name = "Newtonia",
+            type = SettlementType.CITY,
+            topic = QuizTopic.PHYSICS,
+            position = MapPosition(0.80f, 0.88f),
+            connectedTo = listOf("solaris", "gallerymoor", "cinehaven")
         )
     )
 
@@ -105,4 +131,3 @@ class MapGraphProviderImpl @Inject constructor() : MapGraphProvider {
     /** Returns the starting settlement for a fresh game. */
     fun getStartingSettlementId(): String = "stonekeep"
 }
-

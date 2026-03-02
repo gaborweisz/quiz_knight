@@ -101,7 +101,6 @@ fun MapScreen(
     // Whenever a move is requested, smoothly animate to the destination
     LaunchedEffect(uiState.knightFromId, uiState.knightToId) {
         val toId = uiState.knightToId ?: return@LaunchedEffect
-        if (canvasSize == IntSize.Zero) return@LaunchedEffect
         val toSettlement = uiState.settlements.firstOrNull { it.id == toId }
             ?: return@LaunchedEffect
         val target = toSettlement.position.toPx()
@@ -155,19 +154,52 @@ fun MapScreen(
             val w = size.width
             val h = size.height * MAP_HEIGHT_FRACTION
 
-            // ── Draw parchment map bitmap ─────────────────────────────────
+            // ── Draw parchment map bitmap across the full canvas height ───
             if (mapBitmap != null) {
                 drawImage(
                     image = mapBitmap,
                     dstOffset = androidx.compose.ui.unit.IntOffset(0, 0),
-                    dstSize = IntSize(w.toInt(), h.toInt())
+                    dstSize = IntSize(w.toInt(), size.height.toInt())
                 )
             } else {
-                // Fallback plain parchment colour
-                drawRect(color = Color(0xFFC8A86B), size = Size(w, h))
+                drawRect(color = Color(0xFFC8A86B), size = Size(w, size.height))
             }
 
-            // Settlement nodes (roads are baked into the SVG)
+            // ── Draw roads between connected settlements ───────────────────
+            val settlementMap = uiState.settlements.associateBy { it.id }
+            val drawnEdges = mutableSetOf<Pair<String, String>>()
+            uiState.settlements.forEach { s ->
+                val from = s.position.toOffset(w, h)
+                s.connectedTo.forEach connectedTo@{ toId ->
+                    val edge = if (s.id < toId) s.id to toId else toId to s.id
+                    if (drawnEdges.add(edge)) {
+                        val to = settlementMap[toId]?.position?.toOffset(w, h) ?: return@connectedTo
+                        // Road shadow
+                        drawLine(
+                            color = Color(0xFF3B1F00).copy(alpha = 0.5f),
+                            start = from.copy(y = from.y + 3f),
+                            end = to.copy(y = to.y + 3f),
+                            strokeWidth = 7f
+                        )
+                        // Road surface
+                        drawLine(
+                            color = Color(0xFFA0784A),
+                            start = from,
+                            end = to,
+                            strokeWidth = 5f
+                        )
+                        // Road centre dashes
+                        drawLine(
+                            color = Color(0xFFC8A070).copy(alpha = 0.6f),
+                            start = from,
+                            end = to,
+                            strokeWidth = 1.5f
+                        )
+                    }
+                }
+            }
+
+            // Settlement nodes
             uiState.settlements.forEach { s ->
                 drawSettlement(s, s.position.toOffset(w, h), textMeasurer)
             }
