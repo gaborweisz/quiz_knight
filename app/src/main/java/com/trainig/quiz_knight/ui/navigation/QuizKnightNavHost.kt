@@ -10,6 +10,7 @@ import com.trainig.quiz_knight.ui.screens.map.MapScreen
 import com.trainig.quiz_knight.ui.screens.quiz.QuizScreen
 import com.trainig.quiz_knight.ui.screens.result.ResultScreen
 import com.trainig.quiz_knight.ui.screens.splash.SplashScreen
+import com.trainig.quiz_knight.ui.screens.stats.StatsScreen
 import com.trainig.quiz_knight.ui.screens.victory.VictoryScreen
 
 @Composable
@@ -39,7 +40,17 @@ fun QuizKnightNavHost(navController: NavHostController) {
                     navController.navigate(Screen.Victory.route) {
                         popUpTo(Screen.Map.route) { inclusive = false }
                     }
+                },
+                onStatistics = {
+                    navController.navigate(Screen.Statistics.route)
                 }
+            )
+        }
+
+        // ── Statistics ───────────────────────────────────────────────────────
+        composable(Screen.Statistics.route) {
+            StatsScreen(
+                onBack = { navController.popBackStack() }
             )
         }
 

@@ -56,6 +56,7 @@ private const val WALK_DURATION_MS = 900
 fun MapScreen(
     onEnterSettlement: (String) -> Unit,
     onVictory: () -> Unit,
+    onStatistics: () -> Unit = {},
     viewModel: MapViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -296,6 +297,7 @@ fun MapScreen(
             totalCount = uiState.settlements.size,
             isMoving = uiState.isMoving,
             onReset = { viewModel.resetProgress() },
+            onStatistics = onStatistics,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 24.dp, start = 16.dp, end = 16.dp)
@@ -435,6 +437,7 @@ private fun MapHud(
     totalCount: Int,
     isMoving: Boolean,
     onReset: () -> Unit,
+    onStatistics: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showResetDialog by remember { mutableStateOf(false) }
@@ -469,11 +472,22 @@ private fun MapHud(
             Text("Settlements: $completedCount / $totalCount completed", color = Color(0xFFAA9977), fontSize = 12.sp)
             if (isMoving) Text("⚔️ Knight is marching…", color = Color(0xFF90CAF9), fontSize = 11.sp)
             Spacer(Modifier.height(6.dp))
-            TextButton(
-                onClick = { showResetDialog = true },
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("🔄 Reset Progress", color = Color(0xFF887755), fontSize = 11.sp)
+                TextButton(
+                    onClick = onStatistics,
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp)
+                ) {
+                    Text("📊 Statistics", color = Color(0xFFD4AF37), fontSize = 11.sp)
+                }
+                TextButton(
+                    onClick = { showResetDialog = true },
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp)
+                ) {
+                    Text("🔄 Reset Progress", color = Color(0xFF887755), fontSize = 11.sp)
+                }
             }
         }
     }
