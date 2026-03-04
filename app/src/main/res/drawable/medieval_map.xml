@@ -86,101 +86,7 @@
     <path android:fillColor="#70907558" android:pathData="M50,1300 Q90,1250 130,1300 Q150,1330 130,1360 Q90,1380 50,1360 Q30,1330 50,1300 Z"/>
 
     <!-- ── Roads between settlements (matching graph edges) ── -->
-    <!-- ironwood(130,288) to ashford(486,230) -->
-    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M130,288 Q240,260 486,230"/>
-    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M130,288 Q240,260 486,230"/>
-
-    <!-- ironwood(130,288) to millhaven(130,960) -->
-    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M130,288 Q110,500 130,960"/>
-    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M130,288 Q110,500 130,960"/>
-
-    <!-- ashford(486,230) to duskholm(864,288) -->
-    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M486,230 Q660,210 864,288"/>
-    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M486,230 Q660,210 864,288"/>
-
-    <!-- ashford(486,230) to stonekeep(486,960) -->
-    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M486,230 Q510,500 486,960"/>
-    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M486,230 Q510,500 486,960"/>
-
-    <!-- duskholm(864,288) to brightwater(864,960) -->
-    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M864,288 Q890,500 864,960"/>
-    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M864,288 Q890,500 864,960"/>
-
-    <!-- millhaven(130,960) to stonekeep(486,960) -->
-    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M130,960 Q280,940 486,960"/>
-    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M130,960 Q280,940 486,960"/>
-
-    <!-- millhaven(130,960) to ferndale(130,1632) -->
-    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M130,960 Q110,1200 130,1632"/>
-    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M130,960 Q110,1200 130,1632"/>
-
-    <!-- stonekeep(486,960) to brightwater(864,960) -->
-    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M486,960 Q660,940 864,960"/>
-    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M486,960 Q660,940 864,960"/>
-
-    <!-- stonekeep(486,960) to ravenspire(486,1632) -->
-    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M486,960 Q510,1200 486,1632"/>
-    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M486,960 Q510,1200 486,1632"/>
-
-    <!-- brightwater(864,960) to solaris(864,1632) -->
-    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M864,960 Q890,1200 864,1632"/>
-    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M864,960 Q890,1200 864,1632"/>
-
-    <!-- ferndale(130,1632) to ravenspire(486,1632) -->
-    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M130,1632 Q280,1612 486,1632"/>
-    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M130,1632 Q280,1612 486,1632"/>
-
-    <!-- ravenspire(486,1632) to solaris(864,1632) -->
-    <path android:strokeColor="#80704020" android:strokeWidth="14" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M486,1632 Q660,1612 864,1632"/>
-    <path android:strokeColor="#60C8A86B" android:strokeWidth="6" android:fillColor="#00000000"
-        android:strokeLineCap="round"
-        android:pathData="M486,1632 Q660,1612 864,1632"/>
+    <!-- Roads are drawn programmatically from the graph in MapScreen.kt -->
 
     <!-- ── Decorative compass rose (bottom-right) ── -->
     <path android:fillColor="#80704020"
@@ -205,4 +111,3 @@
     <path android:fillColor="#12502800" android:pathData="M350,500 Q365,492 372,505 Q368,516 353,513 Z"/>
 
 </vector>
-

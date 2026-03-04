@@ -102,7 +102,7 @@ class MapGraphProviderImpl @Inject constructor() : MapGraphProvider {
             type = SettlementType.VILLAGE,
             topic = QuizTopic.FILM,
             position = MapPosition(0.12f, 0.88f),
-            connectedTo = listOf("ferndale", "gallerymoor", "newtonia")
+            connectedTo = listOf("ferndale", "gallerymoor")
         ),
         Settlement(
             id = "gallerymoor",
@@ -118,7 +118,7 @@ class MapGraphProviderImpl @Inject constructor() : MapGraphProvider {
             type = SettlementType.CITY,
             topic = QuizTopic.PHYSICS,
             position = MapPosition(0.80f, 0.88f),
-            connectedTo = listOf("solaris", "gallerymoor", "cinehaven")
+            connectedTo = listOf("solaris", "gallerymoor")
         )
     )
 

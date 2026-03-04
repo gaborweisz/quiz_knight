@@ -14,6 +14,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -35,6 +36,9 @@ import com.trainig.quiz_knight.domain.model.SettlementType
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
 // ── Colour palette ───────────────────────────────────────────────────────────
 private val VillageColor   = Color(0xFF8B6914)
@@ -73,6 +77,25 @@ fun MapScreen(
         val w = canvasSize.width.toFloat()
         val h = canvasSize.height.toFloat() * MAP_HEIGHT_FRACTION
         return Offset(x * w, y * h)
+    }
+
+    // Create a remembered per-edge smooth noise grid. Each edge gets a small grid of noise
+    // values (-1..1). We'll sample this grid smoothly for any t in [0,1] using smoothstep
+    // interpolation to produce coherent, natural-looking curves.
+    val edgeNoiseGrid = remember(uiState.settlements) {
+        val rnd = kotlin.random.Random(System.currentTimeMillis())
+        val map = mutableMapOf<Pair<String, String>, List<Float>>()
+        val gridSize = 8
+        uiState.settlements.forEach { s ->
+            s.connectedTo.forEach { toId ->
+                val edge = if (s.id < toId) s.id to toId else toId to s.id
+                if (!map.containsKey(edge)) {
+                    val grid = List(gridSize + 1) { rnd.nextFloat() * 2f - 1f } // -1..1
+                    map[edge] = grid
+                }
+            }
+        }
+        map
     }
 
     // ── Animated knight position ─────────────────────────────────────────
@@ -130,6 +153,67 @@ fun MapScreen(
 
     val textMeasurer = rememberTextMeasurer()
 
+    // Precompute and remember road paths so they're not rebuilt on every recomposition/draw.
+    // Recompute when settlements, canvasSize, or noise grids change.
+    val rememberedRoadPaths by remember(uiState.settlements, canvasSize, edgeNoiseGrid) {
+        mutableStateOf(run {
+            if (canvasSize == IntSize.Zero) return@run emptyMap<Pair<String, String>, Path>()
+            val w = canvasSize.width.toFloat()
+            val h = canvasSize.height.toFloat() * MAP_HEIGHT_FRACTION
+            val map = mutableMapOf<Pair<String, String>, Path>()
+            val settlementMap = uiState.settlements.associateBy { it.id }
+            uiState.settlements.forEach { s ->
+                val from = s.position.toOffset(w, h)
+                s.connectedTo.forEach { toId ->
+                    val edge = if (s.id < toId) s.id to toId else toId to s.id
+                    if (map.containsKey(edge)) return@forEach
+                    val to = settlementMap[toId]?.position?.toOffset(w, h) ?: return@forEach
+
+                    val dx = to.x - from.x
+                    val dy = to.y - from.y
+                    val len = kotlin.math.sqrt(dx * dx + dy * dy).coerceAtLeast(1f)
+                    val px = -dy / len
+                    val py = dx / len
+
+                    val grid = edgeNoiseGrid[edge]
+                    val sampleCount = 20
+                    val pts = mutableListOf<Offset>()
+                    pts.add(from)
+                    for (i in 1..sampleCount) {
+                        val t = i.toFloat() / (sampleCount + 1)
+                        val baseX = from.x + dx * t
+                        val baseY = from.y + dy * t
+                        val falloff = sin(PI * t).toFloat()
+
+                        val nFractal = grid?.let { sampleFractalNoise(it, t, octaves = 3) } ?: 0f
+                        var perpJitter = nFractal * len * 0.26f * falloff
+                        val maxPerp = len * 0.45f
+                        if (perpJitter > maxPerp) perpJitter = maxPerp
+                        if (perpJitter < -maxPerp) perpJitter = -maxPerp
+
+                        val n2 = grid?.let { sampleFractalNoise(it, (t + 0.17f) % 1f, octaves = 2) } ?: 0f
+                        val alongJitter = n2 * len * 0.06f * falloff
+
+                        val angle = n2 * 0.10f
+                        val cosA = cos(angle)
+                        val sinA = sin(angle)
+                        val rpx = px * cosA - py * sinA
+                        val rpy = px * sinA + py * cosA
+
+                        val sampleX = baseX + rpx * perpJitter + (dx / len) * alongJitter
+                        val sampleY = baseY + rpy * perpJitter + (dy / len) * alongJitter
+                        pts.add(Offset(sampleX, sampleY))
+                    }
+                    pts.add(to)
+
+                    val smoothPts = chaikin(pts, iterations = 3)
+                    val p = buildSmoothPath(smoothPts)
+                    map[edge] = p
+                }
+            }
+            map.toMap()
+        }) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -165,36 +249,34 @@ fun MapScreen(
                 drawRect(color = Color(0xFFC8A86B), size = Size(w, size.height))
             }
 
-            // ── Draw roads between connected settlements ───────────────────
+            // Draw precomputed road paths (stable and faster)
             val settlementMap = uiState.settlements.associateBy { it.id }
             val drawnEdges = mutableSetOf<Pair<String, String>>()
             uiState.settlements.forEach { s ->
-                val from = s.position.toOffset(w, h)
                 s.connectedTo.forEach connectedTo@{ toId ->
                     val edge = if (s.id < toId) s.id to toId else toId to s.id
                     if (drawnEdges.add(edge)) {
-                        val to = settlementMap[toId]?.position?.toOffset(w, h) ?: return@connectedTo
-                        // Road shadow
-                        drawLine(
-                            color = Color(0xFF3B1F00).copy(alpha = 0.5f),
-                            start = from.copy(y = from.y + 3f),
-                            end = to.copy(y = to.y + 3f),
-                            strokeWidth = 7f
-                        )
-                        // Road surface
-                        drawLine(
-                            color = Color(0xFFA0784A),
-                            start = from,
-                            end = to,
-                            strokeWidth = 5f
-                        )
-                        // Road centre dashes
-                        drawLine(
-                            color = Color(0xFFC8A070).copy(alpha = 0.6f),
-                            start = from,
-                            end = to,
-                            strokeWidth = 1.5f
-                        )
+                        val path = rememberedRoadPaths[edge]
+                        if (path != null) {
+                            // Outer shadow
+                            drawPath(
+                                path,
+                                color = Color(0xFF3B1F00).copy(alpha = 0.45f),
+                                style = Stroke(width = 18f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                            )
+                            // Road base
+                            drawPath(
+                                path,
+                                color = Color(0xFFB08858),
+                                style = Stroke(width = 13f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                            )
+                            // Surface
+                            drawPath(
+                                path,
+                                color = Color(0xFFCFA878).copy(alpha = 0.75f),
+                                style = Stroke(width = 6f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                            )
+                        }
                     }
                 }
             }
@@ -292,7 +374,7 @@ private fun DrawScope.drawKnight(center: Offset) {
     drawCircle(color = Color(0xFF90CAF9).copy(alpha = 0.25f), radius = 36f, center = Offset(kx, ky))
 
     // Cape
-    val capePath = androidx.compose.ui.graphics.Path().apply {
+    val capePath = Path().apply {
         moveTo(kx - 10f, ky + 2f)
         cubicTo(kx - 18f, ky + 20f, kx - 14f, ky + 38f, kx - 4f, ky + 42f)
         lineTo(kx + 4f, ky + 42f)
@@ -302,7 +384,7 @@ private fun DrawScope.drawKnight(center: Offset) {
     drawPath(capePath, color = Color(0xFF8B0000))
 
     // Body
-    val bodyPath = androidx.compose.ui.graphics.Path().apply {
+    val bodyPath = Path().apply {
         moveTo(kx - 9f, ky + 2f); lineTo(kx + 9f, ky + 2f)
         lineTo(kx + 11f, ky + 24f); lineTo(kx - 11f, ky + 24f); close()
     }
@@ -311,7 +393,7 @@ private fun DrawScope.drawKnight(center: Offset) {
     drawLine(color = Color(0xFF546E7A), start = Offset(kx, ky + 4f), end = Offset(kx, ky + 22f), strokeWidth = 1.2f)
 
     // Helmet
-    val helmetPath = androidx.compose.ui.graphics.Path().apply {
+    val helmetPath = Path().apply {
         moveTo(kx - 10f, ky + 2f); lineTo(kx - 11f, ky - 6f)
         arcTo(androidx.compose.ui.geometry.Rect(kx - 11f, ky - 18f, kx + 11f, ky + 4f), 180f, 180f, false)
         lineTo(kx + 11f, ky - 6f); lineTo(kx + 10f, ky + 2f); close()
@@ -321,7 +403,7 @@ private fun DrawScope.drawKnight(center: Offset) {
     drawLine(color = Color(0xFF1A1A2E), start = Offset(kx - 7f, ky - 5f), end = Offset(kx + 7f, ky - 5f), strokeWidth = 2.5f)
 
     // Plume
-    val plumePath = androidx.compose.ui.graphics.Path().apply {
+    val plumePath = Path().apply {
         moveTo(kx, ky - 18f)
         cubicTo(kx + 6f, ky - 30f, kx + 2f, ky - 36f, kx, ky - 34f)
         cubicTo(kx - 2f, ky - 36f, kx - 6f, ky - 30f, kx, ky - 18f)
@@ -334,7 +416,7 @@ private fun DrawScope.drawKnight(center: Offset) {
     drawLine(color = Color(0xFF8D6E63), start = Offset(kx + 13f, ky + 6f), end = Offset(kx + 15f, ky + 12f), strokeWidth = 3.5f)
 
     // Shield
-    val shieldPath = androidx.compose.ui.graphics.Path().apply {
+    val shieldPath = Path().apply {
         moveTo(kx - 12f, ky + 4f); lineTo(kx - 22f, ky + 4f); lineTo(kx - 22f, ky + 20f)
         cubicTo(kx - 22f, ky + 28f, kx - 12f, ky + 32f, kx - 12f, ky + 32f)
         cubicTo(kx - 12f, ky + 32f, kx - 12f, ky + 28f, kx - 12f, ky + 20f); close()
@@ -395,4 +477,89 @@ private fun MapHud(
             }
         }
     }
+}
+
+// Helper: build a smooth Path passing through the provided points using a Catmull–Rom to Bezier conversion
+private fun buildSmoothPath(points: List<Offset>): Path {
+    val path = Path()
+    if (points.isEmpty()) return path
+    path.moveTo(points[0].x, points[0].y)
+    if (points.size == 1) return path
+    if (points.size == 2) {
+        path.lineTo(points[1].x, points[1].y)
+        return path
+    }
+
+    // For each segment between P_i and P_{i+1}, compute two cubic control points
+    for (i in 0 until points.size - 1) {
+        val p0 = points.getOrNull(i - 1) ?: points[i]
+        val p1 = points[i]
+        val p2 = points[i + 1]
+        val p3 = points.getOrNull(i + 2) ?: points[i + 1]
+
+        // Catmull-Rom to Bezier conversion (tension = 0.5 approximated by factor 1/6)
+        val cp1x = p1.x + (p2.x - p0.x) * (1f / 6f)
+        val cp1y = p1.y + (p2.y - p0.y) * (1f / 6f)
+        val cp2x = p2.x - (p3.x - p1.x) * (1f / 6f)
+        val cp2y = p2.y - (p3.y - p1.y) * (1f / 6f)
+
+        path.cubicTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y)
+    }
+    return path
+}
+
+// Sample a noise grid of values (length N+1) at position t ∈ [0,1] using smoothstep interpolation
+private fun sampleNoiseGrid(grid: List<Float>, t: Float): Float {
+    if (grid.isEmpty()) return 0f
+    val n = grid.size - 1
+    if (n <= 0) return grid.first()
+    val pos = (t * n).coerceIn(0f, n.toFloat())
+    val i = pos.toInt().coerceAtMost(n - 1)
+    val local = pos - i
+    val u = local
+    val fade = u * u * (3f - 2f * u) // smoothstep
+    val a = grid[i]
+    val b = grid[i + 1]
+    return a * (1f - fade) + b * fade
+}
+
+// Fractal noise: combine several frequencies of the base sampled grid to produce
+// multi-scale coherent variation without bringing in an external noise library.
+private fun sampleFractalNoise(grid: List<Float>, t: Float, octaves: Int = 3, lacunarity: Float = 2f, persistence: Float = 0.5f): Float {
+    if (grid.isEmpty() || octaves <= 0) return 0f
+    var amplitude = 1f
+    var frequency = 1f
+    var sum = 0f
+    var maxAmp = 0f
+    repeat(octaves) {
+        val sample = sampleNoiseGrid(grid, (t * frequency) % 1f)
+        sum += sample * amplitude
+        maxAmp += amplitude
+        amplitude *= persistence
+        frequency *= lacunarity
+    }
+    return if (maxAmp == 0f) 0f else sum / maxAmp
+}
+
+// Chaikin subdivision (corner cutting) to smooth a polyline. Returns a new list with smoother points.
+private fun chaikin(points: List<Offset>, iterations: Int): List<Offset> {
+     if (points.size < 2 || iterations <= 0) return points
+     var pts = points
+     repeat(iterations) {
+         val result = mutableListOf<Offset>()
+         result.add(pts.first())
+         for (i in 0 until pts.size - 1) {
+             val p0 = pts[i]
+             val p1 = pts[i + 1]
+             val qx = 0.75f * p0.x + 0.25f * p1.x
+             val qy = 0.75f * p0.y + 0.25f * p1.y
+             val rx = 0.25f * p0.x + 0.75f * p1.x
+             val ry = 0.25f * p0.y + 0.75f * p1.y
+             result.add(Offset(qx, qy))
+             result.add(Offset(rx, ry))
+         }
+         result.add(pts.last())
+         pts = result
+     }
+     return pts
 }
