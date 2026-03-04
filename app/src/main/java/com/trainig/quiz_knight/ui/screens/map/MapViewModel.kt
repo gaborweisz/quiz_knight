@@ -8,6 +8,7 @@ import com.trainig.quiz_knight.domain.repository.GameStateRepository
 import com.trainig.quiz_knight.domain.usecase.MapGraphProvider
 import com.trainig.quiz_knight.domain.usecase.MoveKnightUseCase
 import com.trainig.quiz_knight.domain.usecase.ObserveGameStateUseCase
+import com.trainig.quiz_knight.data.sound.SoundManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -32,7 +33,8 @@ class MapViewModel @Inject constructor(
     private val observeGameState: ObserveGameStateUseCase,
     private val moveKnight: MoveKnightUseCase,
     private val mapGraphProvider: MapGraphProvider,
-    private val gameStateRepository: GameStateRepository
+    private val gameStateRepository: GameStateRepository,
+    private val soundManager: SoundManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MapUiState())
@@ -74,7 +76,9 @@ class MapViewModel @Inject constructor(
         val fromId = state.knightState.currentSettlementId
 
         viewModelScope.launch {
-            // Signal the UI to start the walk animation from→to
+            // Play footstep sound when movement starts
+            launch { soundManager.playFootstep() }
+
             _uiState.update {
                 it.copy(
                     isMoving = true,
@@ -113,6 +117,8 @@ class MapViewModel @Inject constructor(
 
     /** Called by the UI once the walk animation has finished. */
     fun onAnimationFinished() {
+        // Play arrival chime when knight reaches destination
+        viewModelScope.launch { soundManager.playArrival() }
         _uiState.update {
             it.copy(isMoving = false, knightFromId = null, knightToId = null)
         }
