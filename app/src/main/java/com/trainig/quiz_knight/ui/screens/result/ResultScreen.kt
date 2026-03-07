@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.trainig.quiz_knight.domain.usecase.GetQuestionsForTopicUseCase
 
 private val BgDark   = Color(0xFF1A0F00)
@@ -29,9 +30,21 @@ fun ResultScreen(
     settlementId: String,
     score: Int,
     passed: Boolean,
-    onContinue: () -> Unit
+    onContinue: () -> Unit,
+    viewModel: ResultViewModel = hiltViewModel()
 ) {
     val total = GetQuestionsForTopicUseCase.QUESTIONS_PER_QUIZ
+
+    // STEP 1: stop background and lock mode synchronously during composition,
+    // before MainActivity.onResume() gets a chance to restart background music.
+    SideEffect {
+        viewModel.prepare(passed)
+    }
+
+    // STEP 2: actually start the clip once the screen is composed.
+    LaunchedEffect(Unit) {
+        viewModel.onResultShown(passed)
+    }
 
     // Pop-in animation for the result badge
     val scale = remember { Animatable(0f) }
@@ -121,7 +134,10 @@ fun ResultScreen(
             Spacer(Modifier.height(32.dp))
 
             Button(
-                onClick = onContinue,
+                onClick = {
+                    viewModel.onReturnToMap()
+                    onContinue()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
@@ -136,4 +152,3 @@ fun ResultScreen(
         }
     }
 }
-

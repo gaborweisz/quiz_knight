@@ -6,6 +6,8 @@ package com.trainig.quiz_knight.ui.navigation
  */
 sealed class Screen(val route: String) {
     data object Splash : Screen("splash")
+    data object Intro : Screen("intro")
+    data object ReplayIntro : Screen("replay_intro")
     data object MainMenu : Screen("main_menu")
     data object Map : Screen("map")
     data object Statistics : Screen("statistics")

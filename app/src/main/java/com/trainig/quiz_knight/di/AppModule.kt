@@ -4,8 +4,10 @@ import com.google.gson.Gson
 import com.trainig.quiz_knight.data.map.MapGraphProviderImpl
 import com.trainig.quiz_knight.data.repository.GameStateRepositoryImpl
 import com.trainig.quiz_knight.data.repository.QuestionRepositoryImpl
+import com.trainig.quiz_knight.data.repository.SettingsRepositoryImpl
 import com.trainig.quiz_knight.domain.repository.GameStateRepository
 import com.trainig.quiz_knight.domain.repository.QuestionRepository
+import com.trainig.quiz_knight.domain.repository.SettingsRepository
 import com.trainig.quiz_knight.domain.usecase.MapGraphProvider
 import dagger.Binds
 import dagger.Module
@@ -27,9 +29,11 @@ abstract class AppModule {
     @Binds @Singleton
     abstract fun bindMapGraphProvider(impl: MapGraphProviderImpl): MapGraphProvider
 
+    @Binds @Singleton
+    abstract fun bindSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository
+
     companion object {
         @Provides @Singleton
         fun provideGson(): Gson = Gson()
     }
 }
-

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.trainig.quiz_knight.domain.model.GameState
 import com.trainig.quiz_knight.domain.model.Settlement
 import com.trainig.quiz_knight.domain.repository.GameStateRepository
+import com.trainig.quiz_knight.domain.repository.SettingsRepository
 import com.trainig.quiz_knight.domain.usecase.MapGraphProvider
 import com.trainig.quiz_knight.domain.usecase.MoveKnightUseCase
 import com.trainig.quiz_knight.domain.usecase.ObserveGameStateUseCase
@@ -25,7 +26,8 @@ data class MapUiState(
     val isMoving: Boolean = false,
     val isGameComplete: Boolean = false,
     val errorMessage: String? = null,
-    val shouldOpenQuiz: Boolean = false
+    val shouldOpenQuiz: Boolean = false,
+    val musicEnabled: Boolean = true
 )
 
 @HiltViewModel
@@ -34,7 +36,8 @@ class MapViewModel @Inject constructor(
     private val moveKnight: MoveKnightUseCase,
     private val mapGraphProvider: MapGraphProvider,
     private val gameStateRepository: GameStateRepository,
-    private val soundManager: SoundManager
+    private val soundManager: SoundManager,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MapUiState())
@@ -64,6 +67,20 @@ class MapViewModel @Inject constructor(
                     )
                 }
             }
+        }
+
+        // Observe music setting
+        viewModelScope.launch {
+            settingsRepository.observeMusicEnabled().collect { enabled ->
+                _uiState.update { it.copy(musicEnabled = enabled) }
+            }
+        }
+    }
+
+    /** Toggles music on/off and persists the preference. */
+    fun toggleMusic() {
+        viewModelScope.launch {
+            settingsRepository.setMusicEnabled(!_uiState.value.musicEnabled)
         }
     }
 

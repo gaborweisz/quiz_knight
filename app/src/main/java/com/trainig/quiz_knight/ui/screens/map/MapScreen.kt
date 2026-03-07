@@ -57,6 +57,7 @@ fun MapScreen(
     onEnterSettlement: (String) -> Unit,
     onVictory: () -> Unit,
     onStatistics: () -> Unit = {},
+    onReplayIntro: () -> Unit = {},
     viewModel: MapViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -225,6 +226,17 @@ fun MapScreen(
             .fillMaxSize()
             .background(Color(0xFF1A0F00))
     ) {
+        // Prominent Replay Intro button (top-left) so users can always replay the intro
+        IconButton(
+            onClick = onReplayIntro,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(12.dp)
+                .size(44.dp)
+        ) {
+            Text("🔁", fontSize = 20.sp)
+        }
+
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
@@ -300,8 +312,11 @@ fun MapScreen(
             completedCount = uiState.completedIds.size,
             totalCount = uiState.settlements.size,
             isMoving = uiState.isMoving,
+            musicEnabled = uiState.musicEnabled,
+            onToggleMusic = { viewModel.toggleMusic() },
             onReset = { viewModel.resetProgress() },
             onStatistics = onStatistics,
+            onReplayIntro = onReplayIntro,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 24.dp, start = 16.dp, end = 16.dp)
@@ -440,8 +455,11 @@ private fun MapHud(
     completedCount: Int,
     totalCount: Int,
     isMoving: Boolean,
+    musicEnabled: Boolean,
+    onToggleMusic: () -> Unit,
     onReset: () -> Unit,
     onStatistics: () -> Unit,
+    onReplayIntro: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showResetDialog by remember { mutableStateOf(false) }
@@ -469,26 +487,51 @@ private fun MapHud(
 
     Surface(modifier = modifier, shape = RoundedCornerShape(12.dp), color = Color(0xCC1A0F00)) {
         Column(
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text("⚔️  Quiz Knight", color = Color(0xFFD4AF37), fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Text("Settlements: $completedCount / $totalCount completed", color = Color(0xFFAA9977), fontSize = 12.sp)
             if (isMoving) Text("⚔️ Knight is marching…", color = Color(0xFF90CAF9), fontSize = 11.sp)
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(4.dp))
+            // Row 1
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextButton(
                     onClick = onStatistics,
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp)
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
                 ) {
                     Text("📊 Statistics", color = Color(0xFFD4AF37), fontSize = 11.sp)
                 }
                 TextButton(
+                    onClick = onToggleMusic,
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        if (musicEnabled) "🎵 Music: On" else "🔇 Music: Off",
+                        color = if (musicEnabled) Color(0xFFD4AF37) else Color(0xFF887755),
+                        fontSize = 11.sp
+                    )
+                }
+            }
+            // Row 2
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(
+                    onClick = onReplayIntro,
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                ) {
+                    Text("🎬 Replay Intro", color = Color(0xFFD4AF37), fontSize = 11.sp)
+                }
+                TextButton(
                     onClick = { showResetDialog = true },
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp)
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
                 ) {
                     Text("🔄 Reset Progress", color = Color(0xFF887755), fontSize = 11.sp)
                 }

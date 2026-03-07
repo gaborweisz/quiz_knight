@@ -102,12 +102,12 @@ fun QuizScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Back to map button
+                        // Back to map button — enlarged and now navigates immediately so user can return to map quickly
                         IconButton(
-                            onClick = { showExitDialog = true },
-                            modifier = Modifier.size(56.dp)
+                            onClick = { onBackToMap() },
+                            modifier = Modifier.size(80.dp)
                         ) {
-                            Text("🗺", fontSize = 36.sp)
+                            Text("🗺", fontSize = 48.sp)
                         }
                         Spacer(Modifier.weight(1f))
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {

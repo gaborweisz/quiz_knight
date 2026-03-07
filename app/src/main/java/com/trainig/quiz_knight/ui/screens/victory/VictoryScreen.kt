@@ -38,6 +38,11 @@ fun VictoryScreen(
         )
     }
 
+    // Trigger victory music after the screen is fully composed
+    LaunchedEffect(Unit) {
+        viewModel.onScreenShown()
+    }
+
     // Pulsing glow for the trophy
     val pulse = rememberInfiniteTransition(label = "pulse")
     val pulseScale by pulse.animateFloat(
@@ -93,7 +98,7 @@ fun VictoryScreen(
 
             Button(
                 onClick = {
-                    viewModel.resetProgress()
+                    viewModel.onPlayAgain()
                     onPlayAgain()
                 },
                 modifier = Modifier
@@ -110,4 +115,3 @@ fun VictoryScreen(
         }
     }
 }
-
