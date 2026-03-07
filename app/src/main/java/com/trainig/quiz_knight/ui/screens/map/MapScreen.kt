@@ -163,12 +163,13 @@ fun MapScreen(
             val h = canvasSize.height.toFloat() * MAP_HEIGHT_FRACTION
             val map = mutableMapOf<Pair<String, String>, Path>()
             val settlementMap = uiState.settlements.associateBy { it.id }
-            uiState.settlements.forEach { s ->
+            for (s in uiState.settlements) {
                 val from = s.position.toOffset(w, h)
-                s.connectedTo.forEach { toId ->
+                for (toId in s.connectedTo) {
                     val edge = if (s.id < toId) s.id to toId else toId to s.id
-                    if (map.containsKey(edge)) return@forEach
-                    val to = settlementMap[toId]?.position?.toOffset(w, h) ?: return@forEach
+                    if (map.containsKey(edge)) continue
+                    val toPos = settlementMap[toId]?.position ?: continue
+                    val to = toPos.toOffset(w, h)
 
                     val dx = to.x - from.x
                     val dy = to.y - from.y
@@ -177,7 +178,8 @@ fun MapScreen(
                     val py = dx / len
 
                     val grid = edgeNoiseGrid[edge]
-                    val sampleCount = 20
+                    // fewer sample points -> fewer local bends
+                    val sampleCount = 12
                     val pts = mutableListOf<Offset>()
                     pts.add(from)
                     for (i in 1..sampleCount) {
@@ -187,15 +189,17 @@ fun MapScreen(
                         val falloff = sin(PI * t).toFloat()
 
                         val nFractal = grid?.let { sampleFractalNoise(it, t, octaves = 3) } ?: 0f
-                        var perpJitter = nFractal * len * 0.26f * falloff
-                        val maxPerp = len * 0.45f
+                        // reduce perpendicular jitter to make roads less bendy
+                        var perpJitter = nFractal * len * 0.16f * falloff
+                        val maxPerp = len * 0.30f
                         if (perpJitter > maxPerp) perpJitter = maxPerp
                         if (perpJitter < -maxPerp) perpJitter = -maxPerp
 
                         val n2 = grid?.let { sampleFractalNoise(it, (t + 0.17f) % 1f, octaves = 2) } ?: 0f
-                        val alongJitter = n2 * len * 0.06f * falloff
+                        // reduce along-track jitter and angular variation for smoother roads
+                        val alongJitter = n2 * len * 0.04f * falloff
 
-                        val angle = n2 * 0.10f
+                        val angle = n2 * 0.07f
                         val cosA = cos(angle)
                         val sinA = sin(angle)
                         val rpx = px * cosA - py * sinA
@@ -207,7 +211,8 @@ fun MapScreen(
                     }
                     pts.add(to)
 
-                    val smoothPts = chaikin(pts, iterations = 3)
+                    // fewer Chaikin iterations -> preserves more of the simplified shape (less small bends)
+                    val smoothPts = chaikin(pts)
                     val p = buildSmoothPath(smoothPts)
                     map[edge] = p
                 }
@@ -251,10 +256,9 @@ fun MapScreen(
             }
 
             // Draw precomputed road paths (stable and faster)
-            val settlementMap = uiState.settlements.associateBy { it.id }
             val drawnEdges = mutableSetOf<Pair<String, String>>()
-            uiState.settlements.forEach { s ->
-                s.connectedTo.forEach connectedTo@{ toId ->
+            for (s in uiState.settlements) {
+                for (toId in s.connectedTo) {
                     val edge = if (s.id < toId) s.id to toId else toId to s.id
                     if (drawnEdges.add(edge)) {
                         val path = rememberedRoadPaths[edge]
@@ -555,9 +559,10 @@ private fun sampleFractalNoise(grid: List<Float>, t: Float, octaves: Int = 3, la
     return if (maxAmp == 0f) 0f else sum / maxAmp
 }
 
-// Chaikin subdivision (corner cutting) to smooth a polyline. Returns a new list with smoother points.
-private fun chaikin(points: List<Offset>, iterations: Int): List<Offset> {
-     if (points.size < 2 || iterations <= 0) return points
+// Chaikin subdivision (corner cutting) to smooth a polyline. Uses a fixed small number of iterations for stability.
+private fun chaikin(points: List<Offset>): List<Offset> {
+     val iterations = 2
+     if (points.size < 2) return points
      var pts = points
      repeat(iterations) {
          val result = mutableListOf<Offset>()
