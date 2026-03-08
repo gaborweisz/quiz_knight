@@ -1,7 +1,9 @@
 package com.trainig.quiz_knight.ui.screens.result
 
+import android.net.Uri
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -11,19 +13,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
+import com.trainig.quiz_knight.R
 import com.trainig.quiz_knight.domain.usecase.GetQuestionsForTopicUseCase
 
-private val BgDark   = Color(0xFF1A0F00)
-private val BgMid    = Color(0xFF2C1A00)
-private val Gold     = Color(0xFFD4AF37)
-private val GoldDim  = Color(0xFFAA9977)
-private val Green    = Color(0xFF4CAF50)
-private val Red      = Color(0xFFEF5350)
+private val BgDark  = Color(0xFF1A0F00)
+private val BgMid   = Color(0xFF2C1A00)
+private val Gold    = Color(0xFFD4AF37)
+private val GoldDim = Color(0xFFAA9977)
+private val Green   = Color(0xFF4CAF50)
+private val Red     = Color(0xFFEF5350)
 
 @Composable
 fun ResultScreen(
@@ -35,23 +44,41 @@ fun ResultScreen(
 ) {
     val total = GetQuestionsForTopicUseCase.QUESTIONS_PER_QUIZ
 
-    // STEP 1: stop background and lock mode synchronously during composition,
-    // before MainActivity.onResume() gets a chance to restart background music.
+    // Track whether the victory video is still playing
+    var showVideo by remember { mutableStateOf(passed) }
+
     SideEffect {
         viewModel.prepare(passed)
     }
 
-    // STEP 2: actually start the clip once the screen is composed.
     LaunchedEffect(Unit) {
         viewModel.onResultShown(passed)
     }
 
-    // Pop-in animation for the result badge
+    // ── Victory video overlay ────────────────────────────────────────────
+    if (showVideo) {
+        VictoryVideoPlayer(
+            onVideoEnded = {
+                // Video finished — show the result card, do NOT navigate yet
+                showVideo = false
+            },
+            onSkip = {
+                // Player skipped — show the result card, do NOT navigate yet
+                showVideo = false
+            }
+        )
+        return  // Don't render the result card while video is playing
+    }
+
+    // ── Result card (defeat, or passed after video) ──────────────────────
     val scale = remember { Animatable(0f) }
     LaunchedEffect(Unit) {
         scale.animateTo(
             1f,
-            animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessLow
+            )
         )
     }
 
@@ -150,5 +177,67 @@ fun ResultScreen(
                 Text("Return to Map ➜", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
         }
+    }
+}
+
+// ── Victory video player ─────────────────────────────────────────────────────
+
+@Composable
+private fun VictoryVideoPlayer(
+    onVideoEnded: () -> Unit,
+    onSkip: () -> Unit
+) {
+    val context = LocalContext.current
+
+    val exoPlayer = remember {
+        ExoPlayer.Builder(context).build().apply {
+            val uri = Uri.parse("android.resource://${context.packageName}/${R.raw.riding_knight}")
+            setMediaItem(MediaItem.fromUri(uri))
+            prepare()
+            playWhenReady = true
+        }
+    }
+
+    // Listen for video end
+    DisposableEffect(exoPlayer) {
+        val listener = object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED) {
+                    onVideoEnded()
+                }
+            }
+        }
+        exoPlayer.addListener(listener)
+        onDispose {
+            exoPlayer.removeListener(listener)
+            exoPlayer.release()
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            // Tap anywhere to skip
+            .clickable { onSkip() },
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        AndroidView(
+            factory = { ctx ->
+                PlayerView(ctx).apply {
+                    player = exoPlayer
+                    useController = false  // hide default controls — tap-to-skip is enough
+                }
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+
+        // "Tap to skip" hint
+        Text(
+            text = "Tap to skip",
+            color = Color.White.copy(alpha = 0.6f),
+            fontSize = 13.sp,
+            modifier = Modifier.padding(bottom = 32.dp)
+        )
     }
 }
