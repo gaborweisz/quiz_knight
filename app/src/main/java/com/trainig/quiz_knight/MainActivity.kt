@@ -7,7 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
@@ -58,15 +58,26 @@ class MainActivity : ComponentActivity() {
                     color = Color(0xFF1A0F00)
                 ) {
                     val navController = rememberNavController()
-                    val scope = rememberCoroutineScope()
 
-                    // Always show Intro on startup — introShown=false forces Screen.Intro as startDestination
+                    // Read the persisted introShown flag so Splash can route correctly
+                    val introShown by settingsRepository.observeIntroShown()
+                        .collectAsState(initial = false)
+
                     QuizKnightNavHost(
                         navController = navController,
-                        introShown = false,
-                        onMarkIntroShown = { musicManager.resumeBackground() },
+                        introShown = introShown,
+                        onMarkIntroShown = {
+                            lifecycleScope.launch {
+                                settingsRepository.setIntroShown(true)
+                            }
+                            musicManager.resumeBackground()
+                        },
                         onIntroVisible = { musicManager.playIntroNow() },
-                        onResetIntroRequested = {}
+                        onResetIntroRequested = {
+                            lifecycleScope.launch {
+                                settingsRepository.setIntroShown(false)
+                            }
+                        }
                     )
                 }
             }

@@ -17,7 +17,11 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
 @Composable
-fun SplashScreen(onNavigateToMenu: () -> Unit) {
+fun SplashScreen(
+    introShown: Boolean = true,
+    onNavigateToIntro: () -> Unit = {},
+    onNavigateToMenu: () -> Unit
+) {
     // Fade + scale animation
     val alpha = remember { Animatable(0f) }
     val scale = remember { Animatable(0.7f) }
@@ -26,7 +30,11 @@ fun SplashScreen(onNavigateToMenu: () -> Unit) {
         alpha.animateTo(1f, animationSpec = tween(900))
         scale.animateTo(1f, animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy))
         delay(1200)
-        onNavigateToMenu()
+        if (introShown) {
+            onNavigateToMenu()
+        } else {
+            onNavigateToIntro()
+        }
     }
 
     Box(
@@ -63,4 +71,3 @@ fun SplashScreen(onNavigateToMenu: () -> Unit) {
         }
     }
 }
-

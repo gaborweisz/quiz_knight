@@ -27,9 +27,25 @@ fun QuizKnightNavHost(
     // so that replaying the intro works even after the first-run flag was set.
     NavHost(
         navController = navController,
-        // Choose start destination based on persisted intro flag
-        startDestination = if (introShown) Screen.Map.route else Screen.Intro.route
+        startDestination = Screen.Splash.route
     ) {
+        // ── Splash ──────────────────────────────────────────────────────────
+        composable(Screen.Splash.route) {
+            SplashScreen(
+                introShown = introShown,
+                onNavigateToIntro = {
+                    navController.navigate(Screen.Intro.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                },
+                onNavigateToMenu = {
+                    navController.navigate(Screen.Map.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         // ── Intro ──────────────────────────────────────────────────────────
         composable(Screen.Intro.route) {
             IntroScreen(
@@ -44,17 +60,6 @@ fun QuizKnightNavHost(
                     onMarkIntroShown()
                     navController.navigate(Screen.Map.route) {
                         popUpTo(Screen.Intro.route) { inclusive = true }
-                    }
-                }
-            )
-        }
-
-        // ── Splash ──────────────────────────────────────────────────────────
-        composable(Screen.Splash.route) {
-            SplashScreen(
-                onNavigateToMenu = {
-                    navController.navigate(Screen.Map.route) {
-                        popUpTo(Screen.Splash.route) { inclusive = true }
                     }
                 }
             )
