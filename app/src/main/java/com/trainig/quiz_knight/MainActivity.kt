@@ -16,11 +16,13 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.trainig.quiz_knight.data.sound.MusicManager
+import com.trainig.quiz_knight.domain.repository.GameStateRepository
 import com.trainig.quiz_knight.domain.repository.SettingsRepository
 import com.trainig.quiz_knight.ui.navigation.QuizKnightNavHost
 import com.trainig.quiz_knight.ui.theme.Quiz_knightTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,8 +31,8 @@ class MainActivity : ComponentActivity() {
 
     @Inject lateinit var musicManager: MusicManager
     @Inject lateinit var settingsRepository: SettingsRepository
+    @Inject lateinit var gameStateRepository: GameStateRepository
 
-    private var isResumed = false
     private var musicEnabled = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,24 +61,28 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
 
-                    // Read the persisted introShown flag so Splash can route correctly
-                    val introShown by settingsRepository.observeIntroShown()
-                        .collectAsState(initial = false)
+                    // Intro is skipped when the player has already conquered at least one settlement.
+                    // Use null as sentinel so we don't navigate until the real value is loaded.
+                    val introShownOrNull by gameStateRepository.observeGameState()
+                        .map { it.completedSettlementIds.isNotEmpty() }
+                        .collectAsState(initial = null)
+
+                    // Wait for the first real emission before rendering anything,
+                    // so the Splash screen never sees a stale false and routes to Intro incorrectly.
+                    val introShown = introShownOrNull ?: return@Surface
 
                     QuizKnightNavHost(
                         navController = navController,
                         introShown = introShown,
                         onMarkIntroShown = {
-                            lifecycleScope.launch {
-                                settingsRepository.setIntroShown(true)
-                            }
+                            // No-op: intro visibility is now derived from game progress,
+                            // not a separate persisted flag.
                             musicManager.resumeBackground()
                         },
                         onIntroVisible = { musicManager.playIntroNow() },
                         onResetIntroRequested = {
-                            lifecycleScope.launch {
-                                settingsRepository.setIntroShown(false)
-                            }
+                            // No-op: resetting game state (done by MapViewModel.resetProgress)
+                            // already clears completedSettlementIds → intro will show on next launch.
                         },
                         onQuit = {
                             musicManager.releaseAll()
@@ -90,13 +96,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        isResumed = true
         musicManager.onResume()
     }
 
     override fun onPause() {
         super.onPause()
-        isResumed = false
         musicManager.onPause()
     }
 
