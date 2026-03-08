@@ -77,6 +77,10 @@ class MainActivity : ComponentActivity() {
                             lifecycleScope.launch {
                                 settingsRepository.setIntroShown(false)
                             }
+                        },
+                        onQuit = {
+                            musicManager.releaseAll()
+                            finishAndRemoveTask()
                         }
                     )
                 }

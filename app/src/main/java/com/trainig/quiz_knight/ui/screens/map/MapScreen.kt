@@ -1,8 +1,14 @@
 package com.trainig.quiz_knight.ui.screens.map
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -58,6 +64,7 @@ fun MapScreen(
     onVictory: () -> Unit,
     onStatistics: () -> Unit = {},
     onReplayIntro: () -> Unit = {},
+    onQuit: () -> Unit = {},
     viewModel: MapViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -317,6 +324,7 @@ fun MapScreen(
             onReset = { viewModel.resetProgress() },
             onStatistics = onStatistics,
             onReplayIntro = onReplayIntro,
+            onQuit = onQuit,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 24.dp, start = 16.dp, end = 16.dp)
@@ -450,6 +458,8 @@ private fun DrawScope.drawKnight(center: Offset) {
 
 // ── HUD ──────────────────────────────────────────────────────────────────────
 
+private enum class HudMode { COLLAPSED, REDUCED, FULL }
+
 @Composable
 private fun MapHud(
     completedCount: Int,
@@ -460,9 +470,13 @@ private fun MapHud(
     onReset: () -> Unit,
     onStatistics: () -> Unit,
     onReplayIntro: () -> Unit,
+    onQuit: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showResetDialog by remember { mutableStateOf(false) }
+    var showQuitDialog by remember { mutableStateOf(false) }
+    // Start collapsed — first tap shows reduced, second shows full, third collapses again
+    var hudMode by remember { mutableStateOf(HudMode.REDUCED) }
 
     if (showResetDialog) {
         AlertDialog(
@@ -485,55 +499,141 @@ private fun MapHud(
         )
     }
 
-    Surface(modifier = modifier, shape = RoundedCornerShape(12.dp), color = Color(0xCC1A0F00)) {
+    if (showQuitDialog) {
+        AlertDialog(
+            onDismissRequest = { showQuitDialog = false },
+            containerColor = Color(0xFF2C1A00),
+            titleContentColor = Color(0xFFD4AF37),
+            textContentColor = Color(0xFFAA9977),
+            title = { Text("Quit Game?", fontWeight = FontWeight.Bold) },
+            text = { Text("Your progress is saved. Are you sure you want to quit?") },
+            confirmButton = {
+                TextButton(onClick = { showQuitDialog = false; onQuit() }) {
+                    Text("Quit", color = Color(0xFFEF5350), fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showQuitDialog = false }) {
+                    Text("Cancel", color = Color(0xFFD4AF37))
+                }
+            }
+        )
+    }
+
+    Surface(
+        modifier = modifier.clickable {
+            hudMode = if (hudMode == HudMode.FULL) HudMode.REDUCED else HudMode.FULL
+        },
+        shape = RoundedCornerShape(12.dp),
+        color = Color(0xCC1A0F00)
+    ) {
         Column(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("⚔️  Quiz Knight", color = Color(0xFFD4AF37), fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            Text("Settlements: $completedCount / $totalCount completed", color = Color(0xFFAA9977), fontSize = 12.sp)
-            if (isMoving) Text("⚔️ Knight is marching…", color = Color(0xFF90CAF9), fontSize = 11.sp)
-            Spacer(Modifier.height(4.dp))
-            // Row 1
+            // ── Always visible: title + chevron ──────────────────────────
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                TextButton(
-                    onClick = onStatistics,
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
-                ) {
-                    Text("📊 Statistics", color = Color(0xFFD4AF37), fontSize = 11.sp)
-                }
-                TextButton(
-                    onClick = onToggleMusic,
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
-                ) {
+                Text(
+                    "⚔️  Quiz Knight",
+                    color = Color(0xFFD4AF37),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    if (hudMode == HudMode.FULL) "▲" else "▼",
+                    color = Color(0xFFAA9977),
+                    fontSize = 11.sp
+                )
+            }
+
+            // ── Reduced + Full: progress row ─────────────────────────────
+            AnimatedVisibility(
+                visible = hudMode == HudMode.REDUCED || hudMode == HudMode.FULL,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        if (musicEnabled) "🎵 Music: On" else "🔇 Music: Off",
-                        color = if (musicEnabled) Color(0xFFD4AF37) else Color(0xFF887755),
+                        "Settlements: $completedCount / $totalCount completed",
+                        color = Color(0xFFAA9977),
+                        fontSize = 12.sp
+                    )
+                    if (isMoving) Text(
+                        "⚔️ Knight is marching…",
+                        color = Color(0xFF90CAF9),
                         fontSize = 11.sp
                     )
                 }
             }
-            // Row 2
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
+
+            // ── Full only: all menu buttons ──────────────────────────────
+            AnimatedVisibility(
+                visible = hudMode == HudMode.FULL,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
             ) {
-                TextButton(
-                    onClick = onReplayIntro,
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
-                ) {
-                    Text("🎬 Replay Intro", color = Color(0xFFD4AF37), fontSize = 11.sp)
-                }
-                TextButton(
-                    onClick = { showResetDialog = true },
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
-                ) {
-                    Text("🔄 Reset Progress", color = Color(0xFF887755), fontSize = 11.sp)
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Spacer(Modifier.height(4.dp))
+                    // Row 1
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextButton(
+                            onClick = onStatistics,
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                        ) {
+                            Text("📊 Statistics", color = Color(0xFFD4AF37), fontSize = 11.sp)
+                        }
+                        TextButton(
+                            onClick = onToggleMusic,
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                if (musicEnabled) "🎵 Music: On" else "🔇 Music: Off",
+                                color = if (musicEnabled) Color(0xFFD4AF37) else Color(0xFF887755),
+                                fontSize = 11.sp
+                            )
+                        }
+                    }
+                    // Row 2
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextButton(
+                            onClick = onReplayIntro,
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                        ) {
+                            Text("🎬 Replay Intro", color = Color(0xFFD4AF37), fontSize = 11.sp)
+                        }
+                        TextButton(
+                            onClick = { showResetDialog = true },
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                        ) {
+                            Text("🔄 Reset Progress", color = Color(0xFF887755), fontSize = 11.sp)
+                        }
+                    }
+                    // Row 3
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextButton(
+                            onClick = { showQuitDialog = true },
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                        ) {
+                            Text("🚪 Quit Game", color = Color(0xFFEF5350), fontSize = 11.sp)
+                        }
+                    }
                 }
             }
         }

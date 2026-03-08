@@ -1,7 +1,6 @@
 package com.trainig.quiz_knight.ui.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -21,7 +20,8 @@ fun QuizKnightNavHost(
     introShown: Boolean,
     onMarkIntroShown: () -> Unit,
     onIntroVisible: () -> Unit,
-    onResetIntroRequested: () -> Unit
+    onResetIntroRequested: () -> Unit,
+    onQuit: () -> Unit,
 ) {
     // onResetIntroRequested should be provided by the Activity to clear the persisted flag
     // so that replaying the intro works even after the first-run flag was set.
@@ -80,12 +80,10 @@ fun QuizKnightNavHost(
                     navController.navigate(Screen.Statistics.route)
                 },
                 onReplayIntro = {
-                    // First clear the persisted "intro shown" flag so Intro appears as first-run
                     onResetIntroRequested()
-                    // Then navigate to the Intro route so the user sees it
                     navController.navigate(Screen.Intro.route)
                 },
-
+                onQuit = onQuit,
             )
         }
 
