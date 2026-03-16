@@ -179,10 +179,12 @@ class MusicManager @Inject constructor(
     }
 
     /** Public helper to start the intro music immediately (used while IntroScreen is visible).
-     * Safe to call multiple times; will do nothing if music is disabled. */
+     * Safe to call multiple times; will do nothing if the intro is already playing or music is disabled. */
     fun playIntroNow() {
         if (!enabled) return
-        // stop any ongoing track and start the intro
+        // If intro is already playing, don't interrupt it
+        val player = currentPlayer
+        if (introPlayed && player != null && player.isPlaying) return
         stopCurrent()
         playIntro()
     }

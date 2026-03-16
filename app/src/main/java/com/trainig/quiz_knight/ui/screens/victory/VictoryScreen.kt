@@ -1,7 +1,9 @@
 package com.trainig.quiz_knight.ui.screens.victory
 
+import android.net.Uri
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -12,11 +14,18 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
+import com.trainig.quiz_knight.R
 
 private val Gold    = Color(0xFFD4AF37)
 private val GoldDim = Color(0xFFAA9977)
@@ -27,6 +36,17 @@ fun VictoryScreen(
     onPlayAgain: () -> Unit,
     viewModel: VictoryViewModel = hiltViewModel()
 ) {
+    // Show the final victory video first, then reveal the screen
+    var showVideo by remember { mutableStateOf(true) }
+
+    if (showVideo) {
+        FinalVictoryVideoPlayer(
+            onVideoEnded = { showVideo = false },
+            onSkip       = { showVideo = false }
+        )
+        return
+    }
+
     val scale = remember { Animatable(0f) }
     val alpha = remember { Animatable(0f) }
 
@@ -113,5 +133,64 @@ fun VictoryScreen(
                 Text("Play Again ⚔️", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
         }
+    }
+}
+
+// ── Final Victory video player ───────────────────────────────────────────────
+
+@Composable
+private fun FinalVictoryVideoPlayer(
+    onVideoEnded: () -> Unit,
+    onSkip: () -> Unit
+) {
+    val context = LocalContext.current
+
+    val exoPlayer = remember {
+        ExoPlayer.Builder(context).build().apply {
+            val uri = Uri.parse("android.resource://${context.packageName}/${R.raw.final_victory}")
+            setMediaItem(MediaItem.fromUri(uri))
+            prepare()
+            playWhenReady = true
+        }
+    }
+
+    DisposableEffect(exoPlayer) {
+        val listener = object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED) {
+                    onVideoEnded()
+                }
+            }
+        }
+        exoPlayer.addListener(listener)
+        onDispose {
+            exoPlayer.removeListener(listener)
+            exoPlayer.release()
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .clickable { onSkip() },
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        AndroidView(
+            factory = { ctx ->
+                PlayerView(ctx).apply {
+                    player = exoPlayer
+                    useController = false
+                }
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+
+        Text(
+            text = "Tap to skip",
+            color = Color.White.copy(alpha = 0.6f),
+            fontSize = 13.sp,
+            modifier = Modifier.padding(bottom = 32.dp)
+        )
     }
 }
