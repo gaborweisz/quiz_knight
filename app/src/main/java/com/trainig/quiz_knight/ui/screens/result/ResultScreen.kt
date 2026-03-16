@@ -44,8 +44,8 @@ fun ResultScreen(
 ) {
     val total = GetQuestionsForTopicUseCase.QUESTIONS_PER_QUIZ
 
-    // Track whether the victory video is still playing
-    var showVideo by remember { mutableStateOf(passed) }
+    // Track whether a pre-result video is still playing
+    var showVideo by remember { mutableStateOf(true) }
 
     SideEffect {
         viewModel.prepare(passed)
@@ -55,18 +55,19 @@ fun ResultScreen(
         viewModel.onResultShown(passed)
     }
 
-    // ── Victory video overlay ────────────────────────────────────────────
+    // ── Pre-result video overlay ─────────────────────────────────────────
     if (showVideo) {
-        VictoryVideoPlayer(
-            onVideoEnded = {
-                // Video finished — show the result card, do NOT navigate yet
-                showVideo = false
-            },
-            onSkip = {
-                // Player skipped — show the result card, do NOT navigate yet
-                showVideo = false
-            }
-        )
+        if (passed) {
+            VictoryVideoPlayer(
+                onVideoEnded = { showVideo = false },
+                onSkip       = { showVideo = false }
+            )
+        } else {
+            DefeatVideoPlayer(
+                onVideoEnded = { showVideo = false },
+                onSkip       = { showVideo = false }
+            )
+        }
         return  // Don't render the result card while video is playing
     }
 
@@ -192,6 +193,70 @@ private fun VictoryVideoPlayer(
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
             val uri = Uri.parse("android.resource://${context.packageName}/${R.raw.riding_knight}")
+            setMediaItem(MediaItem.fromUri(uri))
+            prepare()
+            playWhenReady = true
+        }
+    }
+
+    // Listen for video end
+    DisposableEffect(exoPlayer) {
+        val listener = object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED) {
+                    onVideoEnded()
+                }
+            }
+        }
+        exoPlayer.addListener(listener)
+        onDispose {
+            exoPlayer.removeListener(listener)
+            exoPlayer.release()
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            // Tap anywhere to skip
+            .clickable { onSkip() },
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        AndroidView(
+            factory = { ctx ->
+                PlayerView(ctx).apply {
+                    player = exoPlayer
+                    useController = false  // hide default controls — tap-to-skip is enough
+                }
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+
+        // "Tap to skip" hint
+        Text(
+            text = "Tap to skip",
+            color = Color.White.copy(alpha = 0.6f),
+            fontSize = 13.sp,
+            modifier = Modifier.padding(bottom = 32.dp)
+        )
+    }
+}
+
+// ── Defeat video player ─────────────────────────────────────────────────────
+
+@Composable
+private fun DefeatVideoPlayer(
+    onVideoEnded: () -> Unit,
+    onSkip: () -> Unit
+) {
+    val context = LocalContext.current
+
+    val exoPlayer = remember {
+        ExoPlayer.Builder(context).build().apply {
+            // Randomly select one of the two defeat videos
+            val videoRes = if (Math.random() < 0.5) R.raw.defeated_knight1 else R.raw.defeated_knight2
+            val uri = Uri.parse("android.resource://${context.packageName}/$videoRes")
             setMediaItem(MediaItem.fromUri(uri))
             prepare()
             playWhenReady = true
