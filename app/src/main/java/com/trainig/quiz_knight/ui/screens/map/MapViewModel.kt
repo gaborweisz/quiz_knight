@@ -27,7 +27,9 @@ data class MapUiState(
     val isGameComplete: Boolean = false,
     val errorMessage: String? = null,
     val shouldOpenQuiz: Boolean = false,
-    val musicEnabled: Boolean = true
+    val musicEnabled: Boolean = true,
+    /** Non-null when the replay-confirmation dialog should be shown for this settlement id */
+    val replaySettlementId: String? = null
 )
 
 @HiltViewModel
@@ -109,9 +111,8 @@ class MapViewModel @Inject constructor(
             moveKnight(state, targetSettlementId)
                 .onSuccess { newState ->
                     latestGameState = newState
-                    val needsQuiz = mapGraphProvider.getSettlement(targetSettlementId) != null &&
-                            targetSettlementId !in newState.completedSettlementIds
-                    // Keep isMoving = true until the UI calls onAnimationFinished()
+                    // For a completed settlement, a normal tap does NOT start the quiz
+                    val needsQuiz = targetSettlementId !in newState.completedSettlementIds
                     _uiState.update {
                         it.copy(
                             knightSettlementId = targetSettlementId,
@@ -130,6 +131,83 @@ class MapViewModel @Inject constructor(
                     }
                 }
         }
+    }
+
+    /**
+     * Called when the player long-presses a settlement.
+     * Knight moves there, then if it is already completed the replay dialog is shown.
+     */
+    fun onSettlementLongPressed(targetSettlementId: String) {
+        val state = latestGameState ?: return
+        if (_uiState.value.isMoving) return
+
+        val isCompleted = targetSettlementId in (state.completedSettlementIds)
+        val isCurrent   = targetSettlementId == state.knightState.currentSettlementId
+
+        // If knight is already here just show the dialog (or start quiz if not completed)
+        if (isCurrent) {
+            if (isCompleted) {
+                _uiState.update { it.copy(replaySettlementId = targetSettlementId) }
+            } else {
+                // Not yet completed — treat like a normal tap and start the quiz
+                _uiState.update { it.copy(shouldOpenQuiz = true) }
+            }
+            return
+        }
+
+        val fromId = state.knightState.currentSettlementId
+        viewModelScope.launch {
+            launch { soundManager.playFootstep() }
+            _uiState.update {
+                it.copy(
+                    isMoving = true,
+                    errorMessage = null,
+                    shouldOpenQuiz = false,
+                    knightFromId = fromId,
+                    knightToId = targetSettlementId
+                )
+            }
+            moveKnight(state, targetSettlementId)
+                .onSuccess { newState ->
+                    latestGameState = newState
+                    val settled = targetSettlementId in newState.completedSettlementIds
+                    _uiState.update {
+                        it.copy(
+                            knightSettlementId = targetSettlementId,
+                            // If completed → show replay dialog after animation;
+                            // if not completed → start quiz normally
+                            shouldOpenQuiz = !settled,
+                            replaySettlementId = if (settled) targetSettlementId else null
+                        )
+                    }
+                }
+                .onFailure { err ->
+                    _uiState.update {
+                        it.copy(
+                            isMoving = false,
+                            knightFromId = null,
+                            knightToId = null,
+                            errorMessage = err.message
+                        )
+                    }
+                }
+        }
+    }
+
+    /** Player confirmed they want to replay the settlement quiz. */
+    fun onReplayConfirmed() {
+        val settlementId = _uiState.value.replaySettlementId ?: return
+        viewModelScope.launch {
+            // Strip the settlement from completed so the map shows it as un-conquered
+            // immediately, and SubmitQuizResultUseCase starts from a clean slate.
+            gameStateRepository.resetSettlement(settlementId)
+            _uiState.update { it.copy(replaySettlementId = null, shouldOpenQuiz = true) }
+        }
+    }
+
+    /** Player dismissed the replay dialog. */
+    fun onReplayDismissed() {
+        _uiState.update { it.copy(replaySettlementId = null) }
     }
 
     /** Called by the UI once the walk animation has finished. */

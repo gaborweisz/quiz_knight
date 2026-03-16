@@ -69,5 +69,27 @@ class GameStateRepositoryImpl @Inject constructor(
     override suspend fun resetGameState() {
         context.dataStore.edit { it.clear() }
     }
-}
 
+    override suspend fun resetSettlement(settlementId: String) {
+        context.dataStore.edit { prefs ->
+            // Strip from completed IDs
+            val completedJson = prefs[Keys.COMPLETED_IDS] ?: "[]"
+            val completed: MutableList<String> = gson.fromJson<List<String>>(
+                completedJson, List::class.java
+            ).toMutableList()
+            completed.remove(settlementId)
+            prefs[Keys.COMPLETED_IDS] = gson.toJson(completed)
+
+            // Clear its score
+            val scoresJson = prefs[Keys.SETTLEMENT_SCORES] ?: "{}"
+            @Suppress("UNCHECKED_CAST")
+            val scores: MutableMap<String, Any> = (gson.fromJson(scoresJson, Map::class.java)
+                    as? Map<String, Any> ?: emptyMap()).toMutableMap()
+            scores.remove(settlementId)
+            prefs[Keys.SETTLEMENT_SCORES] = gson.toJson(scores)
+
+            // Game can no longer be complete if a settlement was just un-conquered
+            prefs[Keys.IS_GAME_COMPLETE] = false
+        }
+    }
+}

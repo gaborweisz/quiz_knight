@@ -160,6 +160,37 @@ fun MapScreen(
         }
     }
 
+    // Replay dialog: shown after knight arrives at a completed settlement via long-press
+    val replaySettlement = uiState.replaySettlementId?.let { id ->
+        uiState.settlements.firstOrNull { it.id == id }
+    }
+    if (replaySettlement != null && !uiState.isMoving) {
+        AlertDialog(
+            onDismissRequest = { viewModel.onReplayDismissed() },
+            containerColor = Color(0xFF2C1A00),
+            titleContentColor = Color(0xFFD4AF37),
+            textContentColor = Color(0xFFAA9977),
+            title = { Text("⚔️ Replay ${replaySettlement.name}?", fontWeight = FontWeight.Bold) },
+            text = {
+                Text(
+                    "You have already conquered this settlement.\n" +
+                    "Would you like to challenge it again?\n\n" +
+                    "Topic: ${replaySettlement.topic.displayName}"
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { viewModel.onReplayConfirmed() }) {
+                    Text("⚔️ Replay", color = Color(0xFFD4AF37), fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.onReplayDismissed() }) {
+                    Text("Cancel", color = Color(0xFFAA9977))
+                }
+            }
+        )
+    }
+
     val textMeasurer = rememberTextMeasurer()
 
     // Precompute and remember road paths so they're not rebuilt on every recomposition/draw.
@@ -249,15 +280,26 @@ fun MapScreen(
                 .fillMaxSize()
                 .onSizeChanged { canvasSize = it }
                 .pointerInput(uiState.settlements, uiState.isMoving) {
-                    detectTapGestures { tapOffset ->
-                        if (uiState.isMoving) return@detectTapGestures
-                        val mapH = size.height * MAP_HEIGHT_FRACTION
-                        val tapped = uiState.settlements.firstOrNull { s ->
-                            val c = s.position.toOffset(size.width.toFloat(), mapH)
-                            (tapOffset - c).getDistance() < nodeRadius(s.type)
+                    detectTapGestures(
+                        onTap = { tapOffset ->
+                            if (uiState.isMoving) return@detectTapGestures
+                            val mapH = size.height * MAP_HEIGHT_FRACTION
+                            val tapped = uiState.settlements.firstOrNull { s ->
+                                val c = s.position.toOffset(size.width.toFloat(), mapH)
+                                (tapOffset - c).getDistance() < nodeRadius(s.type)
+                            }
+                            tapped?.let { viewModel.onSettlementTapped(it.id) }
+                        },
+                        onLongPress = { tapOffset ->
+                            if (uiState.isMoving) return@detectTapGestures
+                            val mapH = size.height * MAP_HEIGHT_FRACTION
+                            val tapped = uiState.settlements.firstOrNull { s ->
+                                val c = s.position.toOffset(size.width.toFloat(), mapH)
+                                (tapOffset - c).getDistance() < nodeRadius(s.type)
+                            }
+                            tapped?.let { viewModel.onSettlementLongPressed(it.id) }
                         }
-                        tapped?.let { viewModel.onSettlementTapped(it.id) }
-                    }
+                    )
                 }
         ) {
             val w = size.width

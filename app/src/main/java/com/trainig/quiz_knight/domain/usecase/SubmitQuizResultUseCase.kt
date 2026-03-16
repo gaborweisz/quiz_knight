@@ -28,7 +28,8 @@ class SubmitQuizResultUseCase @Inject constructor(
         val updatedCompleted = if (passed) {
             currentState.completedSettlementIds + settlementId
         } else {
-            currentState.completedSettlementIds
+            // On defeat, explicitly remove from completed (handles replay-defeat scenario)
+            currentState.completedSettlementIds - settlementId
         }
 
         val updatedScores = currentState.settlementScores + (settlementId to score)
@@ -45,4 +46,3 @@ class SubmitQuizResultUseCase @Inject constructor(
         return newState
     }
 }
-
