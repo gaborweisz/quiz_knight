@@ -113,8 +113,8 @@ class MapViewModel @Inject constructor(
         val fromId = state.knightState.currentSettlementId
 
         viewModelScope.launch {
-            // Play footstep sound when movement starts
-            launch { soundManager.playFootstep() }
+            // Play galloping hoofbeats for the journey when movement starts
+            launch { soundManager.playGallop() }
 
             _uiState.update {
                 it.copy(
@@ -175,7 +175,7 @@ class MapViewModel @Inject constructor(
 
         val fromId = state.knightState.currentSettlementId
         viewModelScope.launch {
-            launch { soundManager.playFootstep() }
+            launch { soundManager.playGallop() }
             _uiState.update {
                 it.copy(
                     isMoving = true,
