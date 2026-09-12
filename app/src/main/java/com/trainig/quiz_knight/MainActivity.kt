@@ -16,8 +16,10 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.trainig.quiz_knight.data.sound.MusicManager
+import com.trainig.quiz_knight.domain.model.AppLanguage
 import com.trainig.quiz_knight.domain.repository.GameStateRepository
 import com.trainig.quiz_knight.domain.repository.SettingsRepository
+import com.trainig.quiz_knight.ui.localization.LocalAppLanguage
 import com.trainig.quiz_knight.ui.navigation.QuizKnightNavHost
 import com.trainig.quiz_knight.ui.theme.Quiz_knightTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -71,24 +73,29 @@ class MainActivity : ComponentActivity() {
                     // so the Splash screen never sees a stale false and routes to Intro incorrectly.
                     val introShown = introShownOrNull ?: return@Surface
 
-                    QuizKnightNavHost(
-                        navController = navController,
-                        introShown = introShown,
-                        onMarkIntroShown = {
-                            // No-op: intro visibility is now derived from game progress,
-                            // not a separate persisted flag.
-                            musicManager.resumeBackground()
-                        },
-                        onIntroVisible = { musicManager.playIntroNow() },
-                        onResetIntroRequested = {
-                            // No-op: resetting game state (done by MapViewModel.resetProgress)
-                            // already clears completedSettlementIds → intro will show on next launch.
-                        },
-                        onQuit = {
-                            musicManager.releaseAll()
-                            finishAndRemoveTask()
-                        }
-                    )
+                    val language by settingsRepository.observeLanguage()
+                        .collectAsState(initial = AppLanguage.ENGLISH)
+
+                    CompositionLocalProvider(LocalAppLanguage provides language) {
+                        QuizKnightNavHost(
+                            navController = navController,
+                            introShown = introShown,
+                            onMarkIntroShown = {
+                                // No-op: intro visibility is now derived from game progress,
+                                // not a separate persisted flag.
+                                musicManager.resumeBackground()
+                            },
+                            onIntroVisible = { musicManager.playIntroNow() },
+                            onResetIntroRequested = {
+                                // No-op: resetting game state (done by MapViewModel.resetProgress)
+                                // already clears completedSettlementIds → intro will show on next launch.
+                            },
+                            onQuit = {
+                                musicManager.releaseAll()
+                                finishAndRemoveTask()
+                            }
+                        )
+                    }
                 }
             }
         }

@@ -19,6 +19,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.trainig.quiz_knight.R
+import com.trainig.quiz_knight.ui.localization.localizedStringResource
 
 private val BgDark       = Color(0xFF1A0F00)
 private val BgMid        = Color(0xFF2C1A00)
@@ -59,19 +61,19 @@ fun QuizScreen(
             containerColor = Color(0xFF2C1A00),
             titleContentColor = Gold,
             textContentColor = GoldDim,
-            title = { Text("Abandon Quest?", fontWeight = FontWeight.Bold) },
-            text = { Text("Your progress in this quiz will be lost.\nAre you sure you want to return to the map?") },
+            title = { Text(localizedStringResource(R.string.quiz_abandon_dialog_title), fontWeight = FontWeight.Bold) },
+            text = { Text(localizedStringResource(R.string.quiz_abandon_dialog_body)) },
             confirmButton = {
                 TextButton(onClick = {
                     showExitDialog = false
                     onBackToMap()
                 }) {
-                    Text("Leave", color = WrongRed, fontWeight = FontWeight.Bold)
+                    Text(localizedStringResource(R.string.quiz_abandon_confirm_button), color = WrongRed, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showExitDialog = false }) {
-                    Text("Keep Playing", color = Gold)
+                    Text(localizedStringResource(R.string.quiz_abandon_dismiss_button), color = Gold)
                 }
             }
         )
@@ -87,7 +89,7 @@ fun QuizScreen(
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = Gold)
             }
             state.questions.isEmpty() -> {
-                Text("No questions available.", color = GoldDim, modifier = Modifier.align(Alignment.Center))
+                Text(localizedStringResource(R.string.quiz_no_questions), color = GoldDim, modifier = Modifier.align(Alignment.Center))
             }
             else -> {
                 val question = state.questions[state.currentIndex]
@@ -112,7 +114,13 @@ fun QuizScreen(
                         Spacer(Modifier.weight(1f))
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(state.settlementName, color = Gold, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                            Text("📜 ${state.topicName}", color = GoldDim, fontSize = 13.sp)
+                            Text(
+                                state.topic?.let {
+                                    localizedStringResource(R.string.quiz_topic_label, localizedStringResource(it.displayNameRes))
+                                } ?: "",
+                                color = GoldDim,
+                                fontSize = 13.sp
+                            )
                         }
                         Spacer(Modifier.weight(1f))
                         // Invisible spacer to balance the row
@@ -178,7 +186,7 @@ fun QuizScreen(
                         ) {
                             val isLast = state.currentIndex == state.questions.size - 1
                             Text(
-                                if (isLast) "See Results ➜" else "Next Question ➜",
+                                if (isLast) localizedStringResource(R.string.quiz_see_results_button) else localizedStringResource(R.string.quiz_next_question_button),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -200,8 +208,8 @@ private fun QuizProgressBar(current: Int, total: Int, score: Int) {
     )
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Question $current / $total", color = GoldDim, fontSize = 13.sp)
-            Text("Score: $score", color = Gold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            Text(localizedStringResource(R.string.quiz_progress_question, current, total), color = GoldDim, fontSize = 13.sp)
+            Text(localizedStringResource(R.string.quiz_progress_score, score), color = Gold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
         }
         Spacer(Modifier.height(6.dp))
         LinearProgressIndicator(

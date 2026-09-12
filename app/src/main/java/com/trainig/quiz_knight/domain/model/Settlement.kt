@@ -1,5 +1,8 @@
 package com.trainig.quiz_knight.domain.model
 
+import androidx.annotation.StringRes
+import com.trainig.quiz_knight.R
+
 /**
  * Represents a settlement (village or city) on the map.
  * Each settlement is a node in the map graph and hosts one quiz topic.
@@ -19,19 +22,19 @@ enum class SettlementType {
     VILLAGE, CITY
 }
 
-enum class QuizTopic(val displayName: String) {
-    LITERATURE("Literature"),
-    GENERAL_HISTORY("General History"),
-    SCIENCE_HISTORY("Science History"),
-    ART("Art"),
-    GEOGRAPHY("Geography"),
-    BIOLOGY("Biology"),
-    CHEMISTRY("Chemistry"),
-    SPACE("Space"),
-    COMPUTER_SCIENCE("Computer Science"),
-    FILM("Film"),
-    ART_HISTORY("Art History"),
-    PHYSICS("Physics")
+enum class QuizTopic(@StringRes val displayNameRes: Int) {
+    LITERATURE(R.string.topic_literature),
+    GENERAL_HISTORY(R.string.topic_general_history),
+    SCIENCE_HISTORY(R.string.topic_science_history),
+    ART(R.string.topic_art),
+    GEOGRAPHY(R.string.topic_geography),
+    BIOLOGY(R.string.topic_biology),
+    CHEMISTRY(R.string.topic_chemistry),
+    SPACE(R.string.topic_space),
+    COMPUTER_SCIENCE(R.string.topic_computer_science),
+    FILM(R.string.topic_film),
+    ART_HISTORY(R.string.topic_art_history),
+    PHYSICS(R.string.topic_physics)
 }
 
 /**

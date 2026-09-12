@@ -1,5 +1,6 @@
 package com.trainig.quiz_knight.domain.repository
 
+import com.trainig.quiz_knight.domain.model.AppLanguage
 import com.trainig.quiz_knight.domain.model.QuizTopic
 import com.trainig.quiz_knight.domain.model.Question
 
@@ -8,6 +9,5 @@ import com.trainig.quiz_knight.domain.model.Question
  * Implementation reads from local JSON assets.
  */
 interface QuestionRepository {
-    suspend fun getQuestionsForTopic(topic: QuizTopic): List<Question>
+    suspend fun getQuestionsForTopic(topic: QuizTopic, language: AppLanguage): List<Question>
 }
-

@@ -18,6 +18,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.trainig.quiz_knight.R
+import com.trainig.quiz_knight.ui.localization.localizedStringResource
 
 private val BgDark   = Color(0xFF1A0F00)
 private val BgMid    = Color(0xFF2C1A00)
@@ -51,12 +53,12 @@ fun StatsScreen(
             IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back to map",
+                    contentDescription = localizedStringResource(R.string.stats_back_content_description),
                     tint = Gold
                 )
             }
             Text(
-                text = "⚔️  Statistics",
+                text = localizedStringResource(R.string.stats_title),
                 color = Gold,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
@@ -76,15 +78,15 @@ fun StatsScreen(
                 modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Overall Progress", color = GoldDim, fontSize = 13.sp)
+                Text(localizedStringResource(R.string.stats_overall_progress_label), color = GoldDim, fontSize = 13.sp)
                 Spacer(Modifier.height(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    StatPill(label = "Cities visited", value = "${uiState.totalAttempted}")
-                    StatPill(label = "Total correct", value = "${uiState.totalCorrect}")
-                    StatPill(label = "Accuracy", value = "${uiState.overallPercentage.toInt()}%")
+                    StatPill(label = localizedStringResource(R.string.stats_cities_visited_label), value = "${uiState.totalAttempted}")
+                    StatPill(label = localizedStringResource(R.string.stats_total_correct_label), value = "${uiState.totalCorrect}")
+                    StatPill(label = localizedStringResource(R.string.stats_accuracy_label), value = "${uiState.overallPercentage.toInt()}%")
                 }
                 Spacer(Modifier.height(10.dp))
                 LinearProgressIndicator(
@@ -158,7 +160,7 @@ private fun CityStatCard(stat: SettlementStats) {
                     fontSize = 14.sp
                 )
                 Text(
-                    stat.settlement.topic.displayName,
+                    localizedStringResource(stat.settlement.topic.displayNameRes),
                     color = GoldDim,
                     fontSize = 11.sp
                 )

@@ -76,7 +76,7 @@
   {"id":"physics_75","topic":"PHYSICS","text":"What is the unit of capacitance?","options":["Henry","Tesla","Farad","Siemens"],"correctIndex":2},
   {"id":"physics_76","topic":"PHYSICS","text":"Which model describes electrons as existing in probability clouds rather than fixed orbits?","options":["Bohr model","Rutherford model","Quantum mechanical model","Dalton model"],"correctIndex":2},
   {"id":"physics_77","topic":"PHYSICS","text":"What is the name of the radiation emitted by a black body that depends only on its temperature?","options":["Synchrotron radiation","Cherenkov radiation","Thermal radiation","Bremsstrahlung"],"correctIndex":2},
-  {"id":"physics_78","topic":"PHYSICS","text":"Which law states that the induced EMF in a circuit is proportional to the rate of change of magnetic flux?","options":["Ampere's Law","Lenz's Law","Faraday's Law","Gauss's Law"],"correctIndex":2},
+  {"id":"physics_78","topic":"PHYSICS","text":"What is the SI unit of pressure?","options":["Pascal","Bar","Torr","Newton"],"correctIndex":0},
   {"id":"physics_79","topic":"PHYSICS","text":"What is the phenomenon where quantum particles can pass through a barrier that classical physics says they cannot?","options":["Superposition","Entanglement","Quantum tunnelling","Wave function collapse"],"correctIndex":2},
   {"id":"physics_80","topic":"PHYSICS","text":"What is the name of the force per unit area exerted on a surface?","options":["Stress","Strain","Pressure","Tension"],"correctIndex":2},
   {"id":"physics_81","topic":"PHYSICS","text":"Which scientist first measured the charge of an electron using oil drops?","options":["J.J. Thomson","Ernest Rutherford","Robert Millikan","Niels Bohr"],"correctIndex":2},
@@ -97,6 +97,6 @@
   {"id":"physics_96","topic":"PHYSICS","text":"Which type of electromagnetic radiation has the highest frequency?","options":["Radio waves","Infrared","X-rays","Gamma rays"],"correctIndex":3},
   {"id":"physics_97","topic":"PHYSICS","text":"What is the name of the point inside a black hole where density becomes infinite?","options":["Event horizon","Photon sphere","Singularity","Ergosphere"],"correctIndex":2},
   {"id":"physics_98","topic":"PHYSICS","text":"Which phenomenon causes an object moving in a circle to accelerate towards the centre?","options":["Centrifugal acceleration","Tangential acceleration","Centripetal acceleration","Angular acceleration"],"correctIndex":2},
-  {"id":"physics_99","topic":"PHYSICS","text":"What is the name of the effect where electrons are emitted from a metal surface by incident light?","options":["Compton effect","Zeeman effect","Photoelectric effect","Stark effect"],"correctIndex":2},
+  {"id":"physics_99","topic":"PHYSICS","text":"Which temperature scale has its zero point at absolute zero and degree increments equal to the Celsius degree?","options":["Fahrenheit","Rankine","Kelvin","Réaumur"],"correctIndex":2},
   {"id":"physics_100","topic":"PHYSICS","text":"Which scientist proposed that matter has wave-like properties, introducing wave-particle duality for particles?","options":["Niels Bohr","Werner Heisenberg","Louis de Broglie","Erwin Schrödinger"],"correctIndex":2}
 ]

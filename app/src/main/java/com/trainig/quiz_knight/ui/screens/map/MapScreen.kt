@@ -36,9 +36,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.trainig.quiz_knight.R
+import com.trainig.quiz_knight.domain.model.AppLanguage
 import com.trainig.quiz_knight.domain.model.MapPosition
+import com.trainig.quiz_knight.domain.model.QuizTopic
 import com.trainig.quiz_knight.domain.model.Settlement
 import com.trainig.quiz_knight.domain.model.SettlementType
+import com.trainig.quiz_knight.ui.localization.localizedStringResource
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -69,6 +72,13 @@ fun MapScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+
+    // Resolve all topic names once per composition (in composable scope — the Canvas draw
+    // lambda below is a plain DrawScope, not @Composable, so localizedStringResource can't
+    // be called from inside it). Recomputes automatically when the selected language changes.
+    val topicNames: Map<QuizTopic, String> = buildMap {
+        QuizTopic.entries.forEach { topic -> put(topic, localizedStringResource(topic.displayNameRes)) }
+    }
 
     // Load the medieval map SVG as a bitmap once
     val mapBitmap: ImageBitmap? = remember {
@@ -170,22 +180,23 @@ fun MapScreen(
             containerColor = Color(0xFF2C1A00),
             titleContentColor = Color(0xFFD4AF37),
             textContentColor = Color(0xFFAA9977),
-            title = { Text("⚔️ Replay ${replaySettlement.name}?", fontWeight = FontWeight.Bold) },
+            title = { Text(localizedStringResource(R.string.replay_dialog_title, replaySettlement.name), fontWeight = FontWeight.Bold) },
             text = {
                 Text(
-                    "You have already conquered this settlement.\n" +
-                    "Would you like to challenge it again?\n\n" +
-                    "Topic: ${replaySettlement.topic.displayName}"
+                    localizedStringResource(
+                        R.string.replay_dialog_body,
+                        topicNames.getValue(replaySettlement.topic)
+                    )
                 )
             },
             confirmButton = {
                 TextButton(onClick = { viewModel.onReplayConfirmed() }) {
-                    Text("⚔️ Replay", color = Color(0xFFD4AF37), fontWeight = FontWeight.Bold)
+                    Text(localizedStringResource(R.string.replay_confirm_button), color = Color(0xFFD4AF37), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.onReplayDismissed() }) {
-                    Text("Cancel", color = Color(0xFFAA9977))
+                    Text(localizedStringResource(R.string.action_cancel), color = Color(0xFFAA9977))
                 }
             }
         )
@@ -349,7 +360,7 @@ fun MapScreen(
 
             // Settlement nodes
             uiState.settlements.forEach { s ->
-                drawSettlement(s, s.position.toOffset(w, h), textMeasurer)
+                drawSettlement(s, s.position.toOffset(w, h), textMeasurer, topicNames.getValue(s.topic))
             }
 
             // Knight
@@ -363,6 +374,8 @@ fun MapScreen(
             isMoving = uiState.isMoving,
             musicEnabled = uiState.musicEnabled,
             onToggleMusic = { viewModel.toggleMusic() },
+            language = uiState.language,
+            onToggleLanguage = { viewModel.toggleLanguage() },
             onReset = { viewModel.resetProgress() },
             onStatistics = onStatistics,
             onReplayIntro = onReplayIntro,
@@ -380,7 +393,7 @@ fun MapScreen(
                     .padding(16.dp),
                 action = {
                     TextButton(onClick = { viewModel.clearError() }) {
-                        Text("OK", color = Color.White)
+                        Text(localizedStringResource(R.string.action_ok), color = Color.White)
                     }
                 },
                 containerColor = ErrorColor
@@ -397,7 +410,7 @@ private fun nodeRadius(type: SettlementType) = if (type == SettlementType.CITY) 
 
 private fun MapPosition.toOffset(w: Float, h: Float) = Offset(x * w, y * h)
 
-private fun DrawScope.drawSettlement(settlement: Settlement, center: Offset, textMeasurer: TextMeasurer) {
+private fun DrawScope.drawSettlement(settlement: Settlement, center: Offset, textMeasurer: TextMeasurer, topicLabel: String) {
     val radius = nodeRadius(settlement.type)
     val fillColor = when {
         settlement.isCompleted -> CompletedColor
@@ -431,7 +444,7 @@ private fun DrawScope.drawSettlement(settlement: Settlement, center: Offset, tex
     drawText(nameLayout, topLeft = Offset(center.x - nameLayout.size.width / 2f, center.y + radius + 6f))
     // Topic label
     val topicLayout = textMeasurer.measure(
-        AnnotatedString(settlement.topic.displayName),
+        AnnotatedString(topicLabel),
         style = TextStyle(fontSize = 9.sp, color = TextColor.copy(alpha = 0.75f), fontWeight = FontWeight.Normal)
     )
     drawText(topicLayout, topLeft = Offset(center.x - topicLayout.size.width / 2f, center.y + radius + 6f + nameLayout.size.height))
@@ -509,6 +522,8 @@ private fun MapHud(
     isMoving: Boolean,
     musicEnabled: Boolean,
     onToggleMusic: () -> Unit,
+    language: AppLanguage,
+    onToggleLanguage: () -> Unit,
     onReset: () -> Unit,
     onStatistics: () -> Unit,
     onReplayIntro: () -> Unit,
@@ -526,16 +541,16 @@ private fun MapHud(
             containerColor = Color(0xFF2C1A00),
             titleContentColor = Color(0xFFD4AF37),
             textContentColor = Color(0xFFAA9977),
-            title = { Text("Reset Progress?", fontWeight = FontWeight.Bold) },
-            text = { Text("All completed settlements and scores will be erased.\nAre you sure?") },
+            title = { Text(localizedStringResource(R.string.reset_dialog_title), fontWeight = FontWeight.Bold) },
+            text = { Text(localizedStringResource(R.string.reset_dialog_body)) },
             confirmButton = {
                 TextButton(onClick = { showResetDialog = false; onReset() }) {
-                    Text("Reset", color = Color(0xFFEF5350), fontWeight = FontWeight.Bold)
+                    Text(localizedStringResource(R.string.reset_confirm_button), color = Color(0xFFEF5350), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showResetDialog = false }) {
-                    Text("Cancel", color = Color(0xFFD4AF37))
+                    Text(localizedStringResource(R.string.action_cancel), color = Color(0xFFD4AF37))
                 }
             }
         )
@@ -547,16 +562,16 @@ private fun MapHud(
             containerColor = Color(0xFF2C1A00),
             titleContentColor = Color(0xFFD4AF37),
             textContentColor = Color(0xFFAA9977),
-            title = { Text("Quit Game?", fontWeight = FontWeight.Bold) },
-            text = { Text("Your progress is saved. Are you sure you want to quit?") },
+            title = { Text(localizedStringResource(R.string.quit_dialog_title), fontWeight = FontWeight.Bold) },
+            text = { Text(localizedStringResource(R.string.quit_dialog_body)) },
             confirmButton = {
                 TextButton(onClick = { showQuitDialog = false; onQuit() }) {
-                    Text("Quit", color = Color(0xFFEF5350), fontWeight = FontWeight.Bold)
+                    Text(localizedStringResource(R.string.quit_confirm_button), color = Color(0xFFEF5350), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showQuitDialog = false }) {
-                    Text("Cancel", color = Color(0xFFD4AF37))
+                    Text(localizedStringResource(R.string.action_cancel), color = Color(0xFFD4AF37))
                 }
             }
         )
@@ -580,7 +595,7 @@ private fun MapHud(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    "⚔️  Quiz Knight",
+                    localizedStringResource(R.string.hud_title),
                     color = Color(0xFFD4AF37),
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
@@ -601,12 +616,12 @@ private fun MapHud(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        "Settlements: $completedCount / $totalCount completed",
+                        localizedStringResource(R.string.hud_settlements_progress, completedCount, totalCount),
                         color = Color(0xFFAA9977),
                         fontSize = 12.sp
                     )
                     if (isMoving) Text(
-                        "⚔️ Knight is marching…",
+                        localizedStringResource(R.string.hud_knight_marching),
                         color = Color(0xFF90CAF9),
                         fontSize = 11.sp
                     )
@@ -631,15 +646,25 @@ private fun MapHud(
                             onClick = onStatistics,
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
                         ) {
-                            Text("📊 Statistics", color = Color(0xFFD4AF37), fontSize = 11.sp)
+                            Text(localizedStringResource(R.string.hud_statistics_button), color = Color(0xFFD4AF37), fontSize = 11.sp)
                         }
                         TextButton(
                             onClick = onToggleMusic,
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
                         ) {
                             Text(
-                                if (musicEnabled) "🎵 Music: On" else "🔇 Music: Off",
+                                if (musicEnabled) localizedStringResource(R.string.hud_music_on) else localizedStringResource(R.string.hud_music_off),
                                 color = if (musicEnabled) Color(0xFFD4AF37) else Color(0xFF887755),
+                                fontSize = 11.sp
+                            )
+                        }
+                        TextButton(
+                            onClick = onToggleLanguage,
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                if (language == AppLanguage.ENGLISH) localizedStringResource(R.string.hud_language_english) else localizedStringResource(R.string.hud_language_hungarian),
+                                color = Color(0xFFD4AF37),
                                 fontSize = 11.sp
                             )
                         }
@@ -654,13 +679,13 @@ private fun MapHud(
                             onClick = onReplayIntro,
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
                         ) {
-                            Text("🎬 Replay Intro", color = Color(0xFFD4AF37), fontSize = 11.sp)
+                            Text(localizedStringResource(R.string.hud_replay_intro_button), color = Color(0xFFD4AF37), fontSize = 11.sp)
                         }
                         TextButton(
                             onClick = { showResetDialog = true },
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
                         ) {
-                            Text("🔄 Reset Progress", color = Color(0xFF887755), fontSize = 11.sp)
+                            Text(localizedStringResource(R.string.hud_reset_progress_button), color = Color(0xFF887755), fontSize = 11.sp)
                         }
                     }
                     // Row 3
@@ -673,7 +698,7 @@ private fun MapHud(
                             onClick = { showQuitDialog = true },
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
                         ) {
-                            Text("🚪 Quit Game", color = Color(0xFFEF5350), fontSize = 11.sp)
+                            Text(localizedStringResource(R.string.hud_quit_game_button), color = Color(0xFFEF5350), fontSize = 11.sp)
                         }
                     }
                 }

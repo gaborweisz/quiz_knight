@@ -1,3 +1,106 @@
 <resources>
     <string name="app_name">Quiz Knight</string>
+
+    <!-- Shared -->
+    <string name="action_cancel">Cancel</string>
+    <string name="action_ok">OK</string>
+    <string name="video_tap_to_skip">Tap to skip</string>
+
+    <!-- Topic names -->
+    <string name="topic_literature">Literature</string>
+    <string name="topic_general_history">General History</string>
+    <string name="topic_science_history">Science History</string>
+    <string name="topic_art">Art</string>
+    <string name="topic_geography">Geography</string>
+    <string name="topic_biology">Biology</string>
+    <string name="topic_chemistry">Chemistry</string>
+    <string name="topic_space">Space</string>
+    <string name="topic_computer_science">Computer Science</string>
+    <string name="topic_film">Film</string>
+    <string name="topic_art_history">Art History</string>
+    <string name="topic_physics">Physics</string>
+
+    <!-- Splash -->
+    <string name="splash_title">Quiz Knight</string>
+    <string name="splash_tagline">Conquer the realm with knowledge</string>
+
+    <!-- Intro -->
+    <string name="intro_title">⚔️  The Royal Decree  ⚔️</string>
+    <string name="intro_subtitle">By Order of the Quiz Knight Council</string>
+    <string name="intro_line_1">Hear ye, hear ye, O Brave Soul!</string>
+    <string name="intro_line_2">The realm is vast. The settlements are many.</string>
+    <string name="intro_line_3">The questions… are surprisingly hard.</string>
+    <string name="intro_line_4">Your quest: ride across the kingdom,</string>
+    <string name="intro_line_5">enter each city and village, and</string>
+    <string name="intro_line_6">answer fiendishly difficult questions</string>
+    <string name="intro_line_7">on History, Science, Geography,</string>
+    <string name="intro_line_8">Literature, Films, Art &amp; Physics.</string>
+    <string name="intro_line_9">Answer correctly → you conquer the land.</string>
+    <string name="intro_line_10">Answer wrongly → you suffer shame</string>
+    <string name="intro_line_11">and must try again. 💀</string>
+    <string name="intro_line_12">The good news: your horse never tires.</string>
+    <string name="intro_line_13">The bad news: your brain might.</string>
+    <string name="intro_line_14">Conquer ALL settlements to become</string>
+    <string name="intro_line_15">the legendary Quiz Knight! ⚔️👑</string>
+    <string name="intro_line_16">Good luck. You\'ll need it.</string>
+    <string name="intro_seal_caption">— The Council, Anno Domini MMXXVI —</string>
+    <string name="intro_accept_button">I Accept My Fate  ⚔️</string>
+    <string name="intro_skip_button">Skip Intro</string>
+    <string name="intro_tap_hint">(or tap anywhere to begin)</string>
+
+    <!-- Map / HUD -->
+    <string name="replay_dialog_title">⚔️ Replay %1$s?</string>
+    <string name="replay_dialog_body">You have already conquered this settlement.\nWould you like to challenge it again?\n\nTopic: %1$s</string>
+    <string name="replay_confirm_button">⚔️ Replay</string>
+    <string name="reset_dialog_title">Reset Progress?</string>
+    <string name="reset_dialog_body">All completed settlements and scores will be erased.\nAre you sure?</string>
+    <string name="reset_confirm_button">Reset</string>
+    <string name="quit_dialog_title">Quit Game?</string>
+    <string name="quit_dialog_body">Your progress is saved. Are you sure you want to quit?</string>
+    <string name="quit_confirm_button">Quit</string>
+    <string name="hud_title">⚔️  Quiz Knight</string>
+    <string name="hud_settlements_progress">Settlements: %1$d / %2$d completed</string>
+    <string name="hud_knight_marching">⚔️ Knight is marching…</string>
+    <string name="hud_statistics_button">📊 Statistics</string>
+    <string name="hud_music_on">🎵 Music: On</string>
+    <string name="hud_music_off">🔇 Music: Off</string>
+    <string name="hud_replay_intro_button">🎬 Replay Intro</string>
+    <string name="hud_reset_progress_button">🔄 Reset Progress</string>
+    <string name="hud_quit_game_button">🚪 Quit Game</string>
+    <string name="hud_language_english">🌐 EN</string>
+    <string name="hud_language_hungarian">🌐 HU</string>
+
+    <!-- Quiz -->
+    <string name="quiz_abandon_dialog_title">Abandon Quest?</string>
+    <string name="quiz_abandon_dialog_body">Your progress in this quiz will be lost.\nAre you sure you want to return to the map?</string>
+    <string name="quiz_abandon_confirm_button">Leave</string>
+    <string name="quiz_abandon_dismiss_button">Keep Playing</string>
+    <string name="quiz_no_questions">No questions available.</string>
+    <string name="quiz_topic_label">📜 %1$s</string>
+    <string name="quiz_see_results_button">See Results ➜</string>
+    <string name="quiz_next_question_button">Next Question ➜</string>
+    <string name="quiz_progress_question">Question %1$d / %2$d</string>
+    <string name="quiz_progress_score">Score: %1$d</string>
+
+    <!-- Result -->
+    <string name="result_victory_title">Victory!</string>
+    <string name="result_defeated_title">Defeated!</string>
+    <string name="result_victory_subtitle">You have conquered this settlement!</string>
+    <string name="result_defeated_subtitle">The quiz was not passed. Try again!</string>
+    <string name="result_your_score_label">Your Score</string>
+    <string name="result_score_percentage">%1$d%%  •  Passing: %2$d%%</string>
+    <string name="result_return_to_map_button">Return to Map ➜</string>
+
+    <!-- Victory -->
+    <string name="victory_title">Realm Conquered!</string>
+    <string name="victory_body">You have visited every settlement\nand proven your knowledge\nacross all realms of wisdom!</string>
+    <string name="victory_play_again_button">Play Again ⚔️</string>
+
+    <!-- Statistics -->
+    <string name="stats_back_content_description">Back to map</string>
+    <string name="stats_title">⚔️  Statistics</string>
+    <string name="stats_overall_progress_label">Overall Progress</string>
+    <string name="stats_cities_visited_label">Cities visited</string>
+    <string name="stats_total_correct_label">Total correct</string>
+    <string name="stats_accuracy_label">Accuracy</string>
 </resources>

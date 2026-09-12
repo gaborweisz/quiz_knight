@@ -28,6 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.trainig.quiz_knight.R
+import com.trainig.quiz_knight.ui.localization.localizedStringResource
 
 // Parchment colours
 private val ParchmentLight  = Color(0xFFF5E6C0)
@@ -38,29 +40,30 @@ private val InkFaded        = Color(0xFF5C3A10)
 private val BgDark          = Color(0xFF1A0F00)
 private val Gold            = Color(0xFFD4AF37)
 
-private val introLines = listOf(
-    "Hear ye, hear ye, O Brave Soul!",
-    "",
-    "The realm is vast. The settlements are many.",
-    "The questions… are surprisingly hard.",
-    "",
-    "Your quest: ride across the kingdom,",
-    "enter each city and village, and",
-    "answer fiendishly difficult questions",
-    "on History, Science, Geography,",
-    "Literature, Films, Art & Physics.",
-    "",
-    "Answer correctly → you conquer the land.",
-    "Answer wrongly → you suffer shame",
-    "and must try again. 💀",
-    "",
-    "The good news: your horse never tires.",
-    "The bad news: your brain might.",
-    "",
-    "Conquer ALL settlements to become",
-    "the legendary Quiz Knight! ⚔️👑",
-    "",
-    "Good luck. You'll need it."
+// Each entry is a @StringRes id for one line of the scroll, or null for a blank spacer line.
+private val introLineResIds: List<Int?> = listOf(
+    R.string.intro_line_1,
+    null,
+    R.string.intro_line_2,
+    R.string.intro_line_3,
+    null,
+    R.string.intro_line_4,
+    R.string.intro_line_5,
+    R.string.intro_line_6,
+    R.string.intro_line_7,
+    R.string.intro_line_8,
+    null,
+    R.string.intro_line_9,
+    R.string.intro_line_10,
+    R.string.intro_line_11,
+    null,
+    R.string.intro_line_12,
+    R.string.intro_line_13,
+    null,
+    R.string.intro_line_14,
+    R.string.intro_line_15,
+    null,
+    R.string.intro_line_16
 )
 
 @Composable
@@ -125,7 +128,7 @@ fun IntroScreen(onContinue: () -> Unit, onShown: () -> Unit, onSkip: () -> Unit)
 
             // ── Title ─────────────────────────────────────────────────────
             Text(
-                text = "⚔️  The Royal Decree  ⚔️",
+                text = localizedStringResource(R.string.intro_title),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = InkBrown,
@@ -134,7 +137,7 @@ fun IntroScreen(onContinue: () -> Unit, onShown: () -> Unit, onSkip: () -> Unit)
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "By Order of the Quiz Knight Council",
+                text = localizedStringResource(R.string.intro_subtitle),
                 fontSize = 11.sp,
                 fontStyle = FontStyle.Italic,
                 color = InkFaded,
@@ -145,12 +148,12 @@ fun IntroScreen(onContinue: () -> Unit, onShown: () -> Unit, onSkip: () -> Unit)
             Spacer(Modifier.height(16.dp))
 
             // ── Scroll text ───────────────────────────────────────────────
-            introLines.forEach { line ->
-                if (line.isEmpty()) {
+            introLineResIds.forEach { resId ->
+                if (resId == null) {
                     Spacer(Modifier.height(6.dp))
                 } else {
                     Text(
-                        text = line,
+                        text = localizedStringResource(resId),
                         fontSize = 13.5.sp,
                         fontFamily = FontFamily.Serif,
                         color = InkBrown,
@@ -168,7 +171,7 @@ fun IntroScreen(onContinue: () -> Unit, onShown: () -> Unit, onSkip: () -> Unit)
             Text(text = "🔰", fontSize = 32.sp)
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "— The Council, Anno Domini MMXXVI —",
+                text = localizedStringResource(R.string.intro_seal_caption),
                 fontSize = 10.sp,
                 fontStyle = FontStyle.Italic,
                 color = InkFaded,
@@ -190,7 +193,7 @@ fun IntroScreen(onContinue: () -> Unit, onShown: () -> Unit, onSkip: () -> Unit)
                 )
             ) {
                 Text(
-                    "I Accept My Fate  ⚔️",
+                    localizedStringResource(R.string.intro_accept_button),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -210,12 +213,12 @@ fun IntroScreen(onContinue: () -> Unit, onShown: () -> Unit, onSkip: () -> Unit)
                     contentColor = InkFaded
                 )
             ) {
-                Text("Skip Intro", fontSize = 14.sp)
+                Text(localizedStringResource(R.string.intro_skip_button), fontSize = 14.sp)
             }
 
             Spacer(Modifier.height(6.dp))
             Text(
-                "(or tap anywhere to begin)",
+                localizedStringResource(R.string.intro_tap_hint),
                 fontSize = 10.sp,
                 color = InkFaded,
                 fontStyle = FontStyle.Italic
