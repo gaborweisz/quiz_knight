@@ -2,6 +2,7 @@ package com.trainig.quiz_knight.ui.screens.map
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.trainig.quiz_knight.domain.model.AppLanguage
 import com.trainig.quiz_knight.domain.model.GameState
 import com.trainig.quiz_knight.domain.model.Settlement
 import com.trainig.quiz_knight.domain.repository.GameStateRepository
@@ -28,6 +29,7 @@ data class MapUiState(
     val errorMessage: String? = null,
     val shouldOpenQuiz: Boolean = false,
     val musicEnabled: Boolean = true,
+    val language: AppLanguage = AppLanguage.ENGLISH,
     /** Non-null when the replay-confirmation dialog should be shown for this settlement id */
     val replaySettlementId: String? = null
 )
@@ -77,12 +79,28 @@ class MapViewModel @Inject constructor(
                 _uiState.update { it.copy(musicEnabled = enabled) }
             }
         }
+
+        // Observe language setting
+        viewModelScope.launch {
+            settingsRepository.observeLanguage().collect { language ->
+                _uiState.update { it.copy(language = language) }
+            }
+        }
     }
 
     /** Toggles music on/off and persists the preference. */
     fun toggleMusic() {
         viewModelScope.launch {
             settingsRepository.setMusicEnabled(!_uiState.value.musicEnabled)
+        }
+    }
+
+    /** Toggles between English and Hungarian and persists the preference. */
+    fun toggleLanguage() {
+        viewModelScope.launch {
+            val next = if (_uiState.value.language == AppLanguage.ENGLISH)
+                AppLanguage.HUNGARIAN else AppLanguage.ENGLISH
+            settingsRepository.setLanguage(next)
         }
     }
 

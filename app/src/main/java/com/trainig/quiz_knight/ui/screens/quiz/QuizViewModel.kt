@@ -3,6 +3,7 @@ package com.trainig.quiz_knight.ui.screens.quiz
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.trainig.quiz_knight.domain.model.Question
+import com.trainig.quiz_knight.domain.model.QuizTopic
 import com.trainig.quiz_knight.domain.usecase.GetQuestionsForTopicUseCase
 import com.trainig.quiz_knight.domain.usecase.MapGraphProvider
 import com.trainig.quiz_knight.domain.usecase.ObserveGameStateUseCase
@@ -15,7 +16,7 @@ import javax.inject.Inject
 
 data class QuizUiState(
     val settlementName: String = "",
-    val topicName: String = "",
+    val topic: QuizTopic? = null,
     val questions: List<Question> = emptyList(),
     val currentIndex: Int = 0,
     val selectedOptionIndex: Int? = null,   // null = no answer yet
@@ -49,7 +50,7 @@ class QuizViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     settlementName = settlement.name,
-                    topicName = settlement.topic.displayName,
+                    topic = settlement.topic,
                     isLoading = true
                 )
             }

@@ -26,6 +26,7 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import com.trainig.quiz_knight.R
+import com.trainig.quiz_knight.ui.localization.localizedStringResource
 
 private val Gold    = Color(0xFFD4AF37)
 private val GoldDim = Color(0xFFAA9977)
@@ -90,7 +91,7 @@ fun VictoryScreen(
             )
             Spacer(Modifier.height(24.dp))
             Text(
-                "Realm Conquered!",
+                localizedStringResource(R.string.victory_title),
                 fontSize = 38.sp,
                 fontWeight = FontWeight.Bold,
                 color = Gold,
@@ -99,7 +100,7 @@ fun VictoryScreen(
             )
             Spacer(Modifier.height(12.dp))
             Text(
-                "You have visited every settlement\nand proven your knowledge\nacross all realms of wisdom!",
+                localizedStringResource(R.string.victory_body),
                 fontSize = 16.sp,
                 color = GoldDim,
                 textAlign = TextAlign.Center,
@@ -130,7 +131,7 @@ fun VictoryScreen(
                     contentColor = BgDark
                 )
             ) {
-                Text("Play Again ⚔️", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(localizedStringResource(R.string.victory_play_again_button), fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -187,7 +188,7 @@ private fun FinalVictoryVideoPlayer(
         )
 
         Text(
-            text = "Tap to skip",
+            text = localizedStringResource(R.string.video_tap_to_skip),
             color = Color.White.copy(alpha = 0.6f),
             fontSize = 13.sp,
             modifier = Modifier.padding(bottom = 32.dp)

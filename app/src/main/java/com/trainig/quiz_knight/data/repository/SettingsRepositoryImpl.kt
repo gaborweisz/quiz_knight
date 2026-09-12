@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import com.trainig.quiz_knight.domain.model.AppLanguage
 import com.trainig.quiz_knight.domain.repository.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -22,6 +23,7 @@ class SettingsRepositoryImpl @Inject constructor(
     private object Keys {
         val MUSIC_ENABLED = booleanPreferencesKey("music_enabled")
         val INTRO_SHOWN = booleanPreferencesKey("intro_shown")
+        val LANGUAGE = stringPreferencesKey("language")
     }
 
     override fun observeMusicEnabled(): Flow<Boolean> =
@@ -43,6 +45,20 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun setIntroShown(shown: Boolean) {
         context.settingsDataStore.edit { prefs ->
             prefs[Keys.INTRO_SHOWN] = shown
+        }
+    }
+
+    override fun observeLanguage(): Flow<AppLanguage> =
+        context.settingsDataStore.data.map { prefs ->
+            when (prefs[Keys.LANGUAGE]) {
+                AppLanguage.HUNGARIAN.code -> AppLanguage.HUNGARIAN
+                else -> AppLanguage.ENGLISH   // default, covers null/unrecognized values
+            }
+        }
+
+    override suspend fun setLanguage(language: AppLanguage) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[Keys.LANGUAGE] = language.code
         }
     }
 }

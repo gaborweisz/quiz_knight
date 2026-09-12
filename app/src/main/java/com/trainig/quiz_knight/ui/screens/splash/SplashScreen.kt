@@ -14,6 +14,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.trainig.quiz_knight.R
+import com.trainig.quiz_knight.ui.localization.localizedStringResource
 import kotlinx.coroutines.delay
 
 @Composable
@@ -55,7 +57,7 @@ fun SplashScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Quiz Knight",
+                text = localizedStringResource(R.string.splash_title),
                 fontSize = 42.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFD4AF37),
@@ -63,7 +65,7 @@ fun SplashScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Conquer the realm with knowledge",
+                text = localizedStringResource(R.string.splash_tagline),
                 fontSize = 15.sp,
                 color = Color(0xFFAA9977),
                 textAlign = TextAlign.Center

@@ -3,6 +3,7 @@ package com.trainig.quiz_knight.data.repository
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.trainig.quiz_knight.domain.model.AppLanguage
 import com.trainig.quiz_knight.domain.model.Question
 import com.trainig.quiz_knight.domain.model.QuizTopic
 import com.trainig.quiz_knight.domain.repository.QuestionRepository
@@ -25,13 +26,17 @@ class QuestionRepositoryImpl @Inject constructor(
     private val gson: Gson
 ) : QuestionRepository {
 
-    // Simple in-memory cache so we only parse each file once per session
-    private val cache = mutableMapOf<QuizTopic, List<Question>>()
+    // Cache keyed by (topic, language) so a language switch never serves stale-language questions.
+    private val cache = mutableMapOf<Pair<QuizTopic, AppLanguage>, List<Question>>()
 
-    override suspend fun getQuestionsForTopic(topic: QuizTopic): List<Question> {
-        cache[topic]?.let { return it }
+    override suspend fun getQuestionsForTopic(topic: QuizTopic, language: AppLanguage): List<Question> {
+        val key = topic to language
+        cache[key]?.let { return it }
 
-        val fileName = "questions/${topic.name.lowercase()}.json"
+        val fileName = when (language) {
+            AppLanguage.ENGLISH -> "questions/${topic.name.lowercase()}.json"
+            AppLanguage.HUNGARIAN -> "questions/hu/${topic.name.lowercase()}.json"
+        }
         val json = context.assets.open(fileName).bufferedReader().use { it.readText() }
         val type = object : TypeToken<List<QuestionDto>>() {}.type
         val dtos: List<QuestionDto> = gson.fromJson(json, type)
@@ -45,8 +50,7 @@ class QuestionRepositoryImpl @Inject constructor(
                 correctIndex = dto.correctIndex
             )
         }
-        cache[topic] = questions
+        cache[key] = questions
         return questions
     }
 }
-

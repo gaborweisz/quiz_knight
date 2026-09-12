@@ -26,6 +26,8 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import com.trainig.quiz_knight.R
 import com.trainig.quiz_knight.domain.usecase.GetQuestionsForTopicUseCase
+import com.trainig.quiz_knight.domain.usecase.SubmitQuizResultUseCase
+import com.trainig.quiz_knight.ui.localization.localizedStringResource
 
 private val BgDark  = Color(0xFF1A0F00)
 private val BgMid   = Color(0xFF2C1A00)
@@ -102,7 +104,7 @@ fun ResultScreen(
             Spacer(Modifier.height(16.dp))
 
             Text(
-                text = if (passed) "Victory!" else "Defeated!",
+                text = if (passed) localizedStringResource(R.string.result_victory_title) else localizedStringResource(R.string.result_defeated_title),
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (passed) Gold else Red
@@ -110,9 +112,9 @@ fun ResultScreen(
             Spacer(Modifier.height(8.dp))
             Text(
                 text = if (passed)
-                    "You have conquered this settlement!"
+                    localizedStringResource(R.string.result_victory_subtitle)
                 else
-                    "The quiz was not passed. Try again!",
+                    localizedStringResource(R.string.result_defeated_subtitle),
                 fontSize = 15.sp,
                 color = GoldDim,
                 textAlign = TextAlign.Center
@@ -130,7 +132,7 @@ fun ResultScreen(
                     modifier = Modifier.padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Your Score", color = GoldDim, fontSize = 14.sp)
+                    Text(localizedStringResource(R.string.result_your_score_label), color = GoldDim, fontSize = 14.sp)
                     Spacer(Modifier.height(8.dp))
                     Text(
                         "$score / $total",
@@ -152,7 +154,11 @@ fun ResultScreen(
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "${(fraction * 100).toInt()}%  •  Passing: 70%",
+                        localizedStringResource(
+                            R.string.result_score_percentage,
+                            (fraction * 100).toInt(),
+                            (SubmitQuizResultUseCase.PASSING_THRESHOLD * 100).toInt()
+                        ),
                         color = GoldDim,
                         fontSize = 12.sp
                     )
@@ -175,7 +181,7 @@ fun ResultScreen(
                     contentColor = BgDark
                 )
             ) {
-                Text("Return to Map ➜", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(localizedStringResource(R.string.result_return_to_map_button), fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -235,7 +241,7 @@ private fun VictoryVideoPlayer(
 
         // "Tap to skip" hint
         Text(
-            text = "Tap to skip",
+            text = localizedStringResource(R.string.video_tap_to_skip),
             color = Color.White.copy(alpha = 0.6f),
             fontSize = 13.sp,
             modifier = Modifier.padding(bottom = 32.dp)
@@ -299,7 +305,7 @@ private fun DefeatVideoPlayer(
 
         // "Tap to skip" hint
         Text(
-            text = "Tap to skip",
+            text = localizedStringResource(R.string.video_tap_to_skip),
             color = Color.White.copy(alpha = 0.6f),
             fontSize = 13.sp,
             modifier = Modifier.padding(bottom = 32.dp)

@@ -1,0 +1,106 @@
+<resources>
+    <string name="app_name">Quiz Knight</string>
+
+    <!-- Shared -->
+    <string name="action_cancel">Mégse</string>
+    <string name="action_ok">OK</string>
+    <string name="video_tap_to_skip">Koppints a kihagyáshoz</string>
+
+    <!-- Topic names -->
+    <string name="topic_literature">Irodalom</string>
+    <string name="topic_general_history">Általános történelem</string>
+    <string name="topic_science_history">Tudománytörténet</string>
+    <string name="topic_art">Művészet</string>
+    <string name="topic_geography">Földrajz</string>
+    <string name="topic_biology">Biológia</string>
+    <string name="topic_chemistry">Kémia</string>
+    <string name="topic_space">Űr</string>
+    <string name="topic_computer_science">Informatika</string>
+    <string name="topic_film">Film</string>
+    <string name="topic_art_history">Művészettörténet</string>
+    <string name="topic_physics">Fizika</string>
+
+    <!-- Splash -->
+    <string name="splash_title">Quiz Knight</string>
+    <string name="splash_tagline">Hódítsd meg a birodalmat tudással</string>
+
+    <!-- Intro -->
+    <string name="intro_title">⚔️  A királyi rendelet  ⚔️</string>
+    <string name="intro_subtitle">A Kvíz Lovag Tanács rendeletére</string>
+    <string name="intro_line_1">Halljátok, halljátok, ó bátor lélek!</string>
+    <string name="intro_line_2">A birodalom hatalmas. A települések számosak.</string>
+    <string name="intro_line_3">A kérdések… meglepően nehezek.</string>
+    <string name="intro_line_4">A küldetésed: lovagolj át a királyságon,</string>
+    <string name="intro_line_5">látogass el minden városba és faluba, és</string>
+    <string name="intro_line_6">válaszolj ördögien nehéz kérdésekre</string>
+    <string name="intro_line_7">történelemből, tudományból, földrajzból,</string>
+    <string name="intro_line_8">irodalomból, filmekből, művészetből és fizikából.</string>
+    <string name="intro_line_9">Helyes válasz → meghódítod a földet.</string>
+    <string name="intro_line_10">Rossz válasz → szégyent vallasz,</string>
+    <string name="intro_line_11">és újra kell próbálkoznod. 💀</string>
+    <string name="intro_line_12">A jó hír: a lovad sosem fárad el.</string>
+    <string name="intro_line_13">A rossz hír: az agyad talán igen.</string>
+    <string name="intro_line_14">Hódíts meg MINDEN települést, hogy</string>
+    <string name="intro_line_15">a legendás Kvíz Lovaggá válj! ⚔️👑</string>
+    <string name="intro_line_16">Sok szerencsét. Szükséged lesz rá.</string>
+    <string name="intro_seal_caption">— A Tanács, Anno Domini MMXXVI —</string>
+    <string name="intro_accept_button">Elfogadom a sorsom  ⚔️</string>
+    <string name="intro_skip_button">Bevezető kihagyása</string>
+    <string name="intro_tap_hint">(vagy koppints bárhova a kezdéshez)</string>
+
+    <!-- Map / HUD -->
+    <string name="replay_dialog_title">⚔️ Újra próbálod: %1$s?</string>
+    <string name="replay_dialog_body">Ezt a települést már meghódítottad.\nSzeretnéd újra kihívni?\n\nTéma: %1$s</string>
+    <string name="replay_confirm_button">⚔️ Újra</string>
+    <string name="reset_dialog_title">Haladás törlése?</string>
+    <string name="reset_dialog_body">Minden teljesített település és pontszám törlődik.\nBiztosan folytatod?</string>
+    <string name="reset_confirm_button">Törlés</string>
+    <string name="quit_dialog_title">Kilépsz a játékból?</string>
+    <string name="quit_dialog_body">A haladásod mentve van. Biztosan ki szeretnél lépni?</string>
+    <string name="quit_confirm_button">Kilépés</string>
+    <string name="hud_title">⚔️  Quiz Knight</string>
+    <string name="hud_settlements_progress">Települések: %1$d / %2$d teljesítve</string>
+    <string name="hud_knight_marching">⚔️ A lovag menetel…</string>
+    <string name="hud_statistics_button">📊 Statisztika</string>
+    <string name="hud_music_on">🎵 Zene: Be</string>
+    <string name="hud_music_off">🔇 Zene: Ki</string>
+    <string name="hud_replay_intro_button">🎬 Bevezető újra</string>
+    <string name="hud_reset_progress_button">🔄 Haladás törlése</string>
+    <string name="hud_quit_game_button">🚪 Kilépés</string>
+    <string name="hud_language_english">🌐 EN</string>
+    <string name="hud_language_hungarian">🌐 HU</string>
+
+    <!-- Quiz -->
+    <string name="quiz_abandon_dialog_title">Feladod a küldetést?</string>
+    <string name="quiz_abandon_dialog_body">A kvíz eddigi haladása elvész.\nBiztosan visszatérsz a térképre?</string>
+    <string name="quiz_abandon_confirm_button">Kilépés</string>
+    <string name="quiz_abandon_dismiss_button">Folytatás</string>
+    <string name="quiz_no_questions">Nincsenek elérhető kérdések.</string>
+    <string name="quiz_topic_label">📜 %1$s</string>
+    <string name="quiz_see_results_button">Eredmény megtekintése ➜</string>
+    <string name="quiz_next_question_button">Következő kérdés ➜</string>
+    <string name="quiz_progress_question">Kérdés: %1$d / %2$d</string>
+    <string name="quiz_progress_score">Pontszám: %1$d</string>
+
+    <!-- Result -->
+    <string name="result_victory_title">Győzelem!</string>
+    <string name="result_defeated_title">Vereség!</string>
+    <string name="result_victory_subtitle">Meghódítottad ezt a települést!</string>
+    <string name="result_defeated_subtitle">A kvízt nem teljesítetted. Próbáld újra!</string>
+    <string name="result_your_score_label">Eredményed</string>
+    <string name="result_score_percentage">%1$d%%  •  Áthaladás: %2$d%%</string>
+    <string name="result_return_to_map_button">Vissza a térképre ➜</string>
+
+    <!-- Victory -->
+    <string name="victory_title">A birodalom meghódítva!</string>
+    <string name="victory_body">Meglátogattad az összes települést,\nés bebizonyítottad tudásodat\na bölcsesség minden birodalmában!</string>
+    <string name="victory_play_again_button">Új játék ⚔️</string>
+
+    <!-- Statistics -->
+    <string name="stats_back_content_description">Vissza a térképre</string>
+    <string name="stats_title">⚔️  Statisztika</string>
+    <string name="stats_overall_progress_label">Összesített haladás</string>
+    <string name="stats_cities_visited_label">Meglátogatott városok</string>
+    <string name="stats_total_correct_label">Helyes válaszok</string>
+    <string name="stats_accuracy_label">Pontosság</string>
+</resources>
