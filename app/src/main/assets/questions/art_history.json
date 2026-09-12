@@ -84,7 +84,7 @@
   {"id":"art_history_83","topic":"ART_HISTORY","text":"Which Swiss-German artist created 'The Twittering Machine' (1922)?","options":["Wassily Kandinsky","Paul Klee","Kurt Schwitters","László Moholy-Nagy"],"correctIndex":1},
   {"id":"art_history_84","topic":"ART_HISTORY","text":"In which country did the Ukiyo-e woodblock print tradition develop?","options":["China","Korea","Vietnam","Japan"],"correctIndex":3},
   {"id":"art_history_85","topic":"ART_HISTORY","text":"Which art movement, born in the 1960s, sought to make art indistinguishable from everyday life?","options":["Performance Art","Conceptual Art","Arte Povera","Fluxus"],"correctIndex":1},
-  {"id":"art_history_86","topic":"ART_HISTORY","text":"Henri Matisse is particularly associated with which art movement?","options":["Cubism","Futurism","Fauvism","Expressionism"],"correctIndex":2},
+  {"id":"art_history_86","topic":"ART_HISTORY","text":"In which year was Manet's 'Le Déjeuner sur l'herbe' shown at the Salon des Refusés?","options":["1848","1863","1874","1889"],"correctIndex":1},
   {"id":"art_history_87","topic":"ART_HISTORY","text":"Which ancient Greek sculptural style showed idealistic, athletic male figures?","options":["Hellenistic","Archaic","Classical","Geometric"],"correctIndex":2},
   {"id":"art_history_88","topic":"ART_HISTORY","text":"The Louvre Pyramid entrance was designed by which architect?","options":["Renzo Piano","Norman Foster","I.M. Pei","Richard Rogers"],"correctIndex":2},
   {"id":"art_history_89","topic":"ART_HISTORY","text":"Which movement, associated with Klimt and Schiele, broke from the conservative Vienna art establishment around 1897?","options":["The Nazarenes","The Vienna Secession","Der Blaue Reiter","Die Brücke"],"correctIndex":1},
