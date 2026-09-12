@@ -5,7 +5,9 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -111,6 +113,7 @@ fun IntroScreen(onContinue: () -> Unit, onShown: () -> Unit, onSkip: () -> Unit)
                 .alpha(alpha.value)
                 .padding(horizontal = 24.dp, vertical = 32.dp)
                 .fillMaxWidth()
+                .fillMaxHeight()
                 .rotate(swayDeg)
                 .clip(RoundedCornerShape(6.dp))
                 .background(
@@ -118,6 +121,7 @@ fun IntroScreen(onContinue: () -> Unit, onShown: () -> Unit, onSkip: () -> Unit)
                         listOf(ParchmentLight, ParchmentMid, ParchmentLight, ParchmentDark)
                     )
                 )
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 28.dp, vertical = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
