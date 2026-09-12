@@ -23,9 +23,12 @@ class SoundManager @Inject constructor() {
         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
         .build()
 
-    /** Plays a metallic clank / footstep sound (knight marching in armour). */
-    suspend fun playFootstep() = withContext(Dispatchers.IO) {
-        playPcm(buildFootstepSamples())
+    /**
+     * Plays a galloping hoofbeat sequence for the horse's journey between settlements.
+     * [durationMs] should roughly match the on-screen travel animation length.
+     */
+    suspend fun playGallop(durationMs: Int = 900) = withContext(Dispatchers.IO) {
+        playPcm(buildGallopSamples(durationMs))
     }
 
     /** Plays a short triumphant chime when the knight arrives at a settlement. */
@@ -36,25 +39,46 @@ class SoundManager @Inject constructor() {
     // ── PCM builders ──────────────────────────────────────────────────────
 
     /**
-     * Metallic clank: short burst of noise with a sharp metallic resonance at ~900 Hz,
-     * shaped by a fast exponential decay envelope.
+     * Galloping hoofbeats: a repeating "stride" of three close, low-pitched impacts
+     * (thud shaped by band-limited noise + a low resonance, like a hoof striking dirt)
+     * with a short pause between strides — the classic uneven da-da-DUM.. cadence of
+     * a cantering/galloping horse, tiled to fill [durationMs].
      */
-    private fun buildFootstepSamples(): ShortArray {
-        val durationMs = 220
+    private fun buildGallopSamples(durationMs: Int): ShortArray {
         val n = sampleRate * durationMs / 1000
         val samples = ShortArray(n)
-        val rng = java.util.Random(42)
-        for (i in 0 until n) {
-            val t = i.toFloat() / sampleRate
-            // Fast decay envelope
-            val env = exp(-t * 28f)
-            // Metallic resonance (two close frequencies create beating)
-            val tone = sin(2 * PI * 880.0 * t) * 0.5 + sin(2 * PI * 912.0 * t) * 0.3
-            // White noise component for impact "thud"
-            val noise = (rng.nextFloat() * 2f - 1f) * 0.4f
-            val sample = ((tone + noise) * env * Short.MAX_VALUE * 0.6).toInt()
-                .coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt())
-            samples[i] = sample.toShort()
+        val rng = java.util.Random(7)
+
+        val strideMs = 340
+        // (offset within stride in ms, pitch in Hz, relative amplitude)
+        val beats = listOf(
+            Triple(0, 150f, 0.9f),
+            Triple(90, 168f, 0.85f),
+            Triple(190, 130f, 0.55f)
+        )
+
+        var strideStartMs = 0
+        while (strideStartMs < durationMs) {
+            for ((offsetMs, pitch, amp) in beats) {
+                val beatStartMs = strideStartMs + offsetMs
+                if (beatStartMs >= durationMs) continue
+                val startSample = sampleRate * beatStartMs / 1000
+                val beatDurationMs = 70
+                val beatN = sampleRate * beatDurationMs / 1000
+                for (j in 0 until beatN) {
+                    val idx = startSample + j
+                    if (idx >= n) break
+                    val t = j.toFloat() / sampleRate
+                    // Fast decay envelope for a percussive hoof "thud"
+                    val env = exp(-t * 55f)
+                    val thud = sin(2 * PI * pitch * t) * 0.6
+                    val noise = (rng.nextFloat() * 2f - 1f) * 0.5f
+                    val sample = ((thud + noise) * env * amp * Short.MAX_VALUE * 0.7).toInt()
+                    val mixed = (samples[idx] + sample).coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt())
+                    samples[idx] = mixed.toShort()
+                }
+            }
+            strideStartMs += strideMs
         }
         return samples
     }

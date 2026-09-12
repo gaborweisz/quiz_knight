@@ -21,9 +21,11 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
@@ -46,6 +48,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -60,6 +64,10 @@ private val ErrorColor     = Color(0xFFFF5722)
 private const val MAP_HEIGHT_FRACTION = 0.82f
 // Walk animation duration in ms
 private const val WALK_DURATION_MS = 900
+// Duration of one gallop stride cycle (leg swing + bounce), in ms
+private const val GALLOP_STRIDE_MS = 260
+// Duration of the heading (turn-to-face-travel-direction) animation, in ms
+private const val TURN_DURATION_MS = 200
 
 @Composable
 fun MapScreen(
@@ -121,12 +129,16 @@ fun MapScreen(
     val knightX = remember { Animatable(0f) }
     val knightY = remember { Animatable(0f) }
 
-    // Bob animation (only active while moving)
-    val bobTransition = rememberInfiniteTransition(label = "bob")
-    val bobOffset by bobTransition.animateFloat(
-        initialValue = 0f, targetValue = -8f,
-        animationSpec = infiniteRepeatable(tween(300, easing = EaseInOut), RepeatMode.Reverse),
-        label = "bobY"
+    // Heading: direction the horse is currently facing, in degrees (0 = up/north,
+    // clockwise positive), so the sprite always faces the direction of travel.
+    val heading = remember { Animatable(0f) }
+
+    // Gallop cycle: drives the leg stride and body bounce while the knight is moving.
+    val gallopTransition = rememberInfiniteTransition(label = "gallop")
+    val gallopPhase by gallopTransition.animateFloat(
+        initialValue = 0f, targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(GALLOP_STRIDE_MS, easing = LinearEasing), RepeatMode.Restart),
+        label = "gallopPhase"
     )
 
     // Whenever the canvas is sized and we know the resting settlement, snap to it (no animation)
@@ -146,11 +158,22 @@ fun MapScreen(
         val toSettlement = uiState.settlements.firstOrNull { it.id == toId }
             ?: return@LaunchedEffect
         val target = toSettlement.position.toPx()
-        // Animate X and Y in parallel
+
+        // Turn to face the direction of travel, taking the shortest rotation path
+        val dx = target.x - knightX.value
+        val dy = target.y - knightY.value
+        val targetHeading = if (dx != 0f || dy != 0f) {
+            val rawDeg = atan2(dx, -dy) * 180f / PI.toFloat()
+            val delta = ((rawDeg - heading.value + 540f) % 360f) - 180f
+            heading.value + delta
+        } else heading.value
+
+        // Animate X, Y and heading in parallel
         coroutineScope {
             listOf(
                 async { knightX.animateTo(target.x, animationSpec = tween(WALK_DURATION_MS, easing = EaseInOut)) },
-                async { knightY.animateTo(target.y, animationSpec = tween(WALK_DURATION_MS, easing = EaseInOut)) }
+                async { knightY.animateTo(target.y, animationSpec = tween(WALK_DURATION_MS, easing = EaseInOut)) },
+                async { heading.animateTo(targetHeading, animationSpec = tween(TURN_DURATION_MS, easing = EaseInOut)) }
             ).awaitAll()
         }
         // Animation done — tell the ViewModel
@@ -363,9 +386,13 @@ fun MapScreen(
                 drawSettlement(s, s.position.toOffset(w, h), textMeasurer, topicNames.getValue(s.topic))
             }
 
-            // Knight
-            val bob = if (uiState.isMoving) bobOffset else 0f
-            drawKnight(Offset(knightX.value, knightY.value + bob))
+            // Knight — a horse and rider seen from above, facing the direction of travel
+            drawHorseAndRider(
+                basePos = Offset(knightX.value, knightY.value),
+                headingDeg = heading.value,
+                moving = uiState.isMoving,
+                phase = gallopPhase
+            )
         }
 
         MapHud(
@@ -450,65 +477,105 @@ private fun DrawScope.drawSettlement(settlement: Settlement, center: Offset, tex
     drawText(topicLayout, topLeft = Offset(center.x - topicLayout.size.width / 2f, center.y + radius + 6f + nameLayout.size.height))
 }
 
-private fun DrawScope.drawKnight(center: Offset) {
-    val kx = center.x
-    val ky = center.y - 48f
+/**
+ * Draws a horse and rider as seen from above, always oriented to face [headingDeg]
+ * (0° = up/north, clockwise positive). While [moving] the legs and tail cycle through
+ * a galloping stride driven by [phase] (0..1, one full stride per cycle) and the whole
+ * horse lifts slightly off its ground shadow at the peak of each stride.
+ */
+private fun DrawScope.drawHorseAndRider(basePos: Offset, headingDeg: Float, moving: Boolean, phase: Float) {
+    val cx = basePos.x
+    // Raise the whole horse above the settlement marker at basePos so it reads as
+    // standing next to/above the node instead of directly on top of it.
+    val cy = basePos.y - 46f
 
-    // Glow halo
-    drawCircle(color = Color(0xFF90CAF9).copy(alpha = 0.25f), radius = 36f, center = Offset(kx, ky))
+    val stride = if (moving) sin(phase * 2f * PI.toFloat()) else 0f
+    val bounce = if (moving) abs(stride) * 6f else 0f
 
-    // Cape
-    val capePath = Path().apply {
-        moveTo(kx - 10f, ky + 2f)
-        cubicTo(kx - 18f, ky + 20f, kx - 14f, ky + 38f, kx - 4f, ky + 42f)
-        lineTo(kx + 4f, ky + 42f)
-        cubicTo(kx + 14f, ky + 38f, kx + 18f, ky + 20f, kx + 10f, ky + 2f)
-        close()
+    // Ground shadow — stays flat on the map, unaffected by the gallop bounce
+    rotate(degrees = headingDeg, pivot = Offset(cx, cy)) {
+        drawOval(
+            color = Color.Black.copy(alpha = 0.28f),
+            topLeft = Offset(cx - 15f, cy + 22f),
+            size = Size(30f, 12f)
+        )
     }
-    drawPath(capePath, color = Color(0xFF8B0000))
 
-    // Body
-    val bodyPath = Path().apply {
-        moveTo(kx - 9f, ky + 2f); lineTo(kx + 9f, ky + 2f)
-        lineTo(kx + 11f, ky + 24f); lineTo(kx - 11f, ky + 24f); close()
+    // Everything below is drawn "facing up" (forward = -y) then rotated to headingDeg,
+    // and lifted by `bounce` to sell the galloping motion.
+    val by = cy - bounce
+    rotate(degrees = headingDeg, pivot = Offset(cx, cy)) {
+
+        // Glow halo
+        drawCircle(color = Color(0xFF90CAF9).copy(alpha = 0.22f), radius = 38f, center = Offset(cx, by + 6f))
+
+        // ── Legs (drawn first so the body covers the joints) ──────────────
+        val frontSwing = stride * 13f
+        val backSwing = -stride * 13f
+        val legColor = Color(0xFF3E2723)
+        val hoofColor = Color(0xFF1A0F00)
+        val legs = listOf(
+            Offset(cx - 8f, by - 4f) to Offset(cx - 10f, by - 4f + frontSwing),   // front-left
+            Offset(cx + 8f, by - 4f) to Offset(cx + 10f, by - 4f + frontSwing),   // front-right
+            Offset(cx - 8f, by + 30f) to Offset(cx - 10f, by + 30f + backSwing),  // back-left
+            Offset(cx + 8f, by + 30f) to Offset(cx + 10f, by + 30f + backSwing)   // back-right
+        )
+        legs.forEach { (start, end) ->
+            drawLine(color = legColor, start = start, end = end, strokeWidth = 3f, cap = StrokeCap.Round)
+            drawCircle(color = hoofColor, radius = 2f, center = end)
+        }
+
+        // Tail — sways opposite the stride
+        val tailPath = Path().apply {
+            moveTo(cx, by + 34f)
+            quadraticTo(cx + stride * 10f, by + 44f, cx + stride * 6f, by + 54f)
+        }
+        drawPath(tailPath, color = legColor, style = Stroke(width = 3f, cap = StrokeCap.Round))
+
+        // Horse body
+        drawOval(color = Color(0xFF8D5A34), topLeft = Offset(cx - 11f, by - 6f), size = Size(22f, 46f))
+        drawOval(color = Color(0xFF6D4426), topLeft = Offset(cx - 11f, by - 6f), size = Size(22f, 46f), style = Stroke(width = 1.5f))
+
+        // Neck & head
+        drawOval(color = Color(0xFF6D4426), topLeft = Offset(cx - 6f, by - 34f), size = Size(12f, 20f))
+        // Ears
+        drawLine(color = legColor, start = Offset(cx - 3f, by - 33f), end = Offset(cx - 5f, by - 41f), strokeWidth = 2f, cap = StrokeCap.Round)
+        drawLine(color = legColor, start = Offset(cx + 3f, by - 33f), end = Offset(cx + 5f, by - 41f), strokeWidth = 2f, cap = StrokeCap.Round)
+        // Mane
+        drawLine(color = legColor, start = Offset(cx, by - 32f), end = Offset(cx, by - 4f), strokeWidth = 3f, cap = StrokeCap.Round)
+
+        // ── Rider ───────────────────────────────────────────────────────
+        val ry = by + 4f
+        // Cape flares out behind the rider
+        val capePath = Path().apply {
+            moveTo(cx - 6f, ry)
+            cubicTo(cx - 11f, ry + 10f, cx - 8f, ry + 20f, cx - 3f, ry + 22f)
+            lineTo(cx + 3f, ry + 22f)
+            cubicTo(cx + 8f, ry + 20f, cx + 11f, ry + 10f, cx + 6f, ry)
+            close()
+        }
+        drawPath(capePath, color = Color(0xFF8B0000))
+        // Shoulders / torso
+        drawOval(color = Color(0xFF90A4AE), topLeft = Offset(cx - 7f, ry - 3f), size = Size(14f, 14f))
+        drawOval(color = Color(0xFF546E7A), topLeft = Offset(cx - 7f, ry - 3f), size = Size(14f, 14f), style = Stroke(width = 1.2f))
+        // Helmet
+        drawCircle(color = Color(0xFFB0BEC5), radius = 6.5f, center = Offset(cx, ry - 9f))
+        drawCircle(color = Color(0xFF546E7A), radius = 6.5f, center = Offset(cx, ry - 9f), style = Stroke(width = 1.2f))
+        drawLine(color = Color(0xFF1A1A2E), start = Offset(cx - 4f, ry - 11f), end = Offset(cx + 4f, ry - 11f), strokeWidth = 2f)
+        // Plume
+        val plumePath = Path().apply {
+            moveTo(cx, ry - 15f)
+            cubicTo(cx + 4f, ry - 25f, cx + 1f, ry - 30f, cx, ry - 28f)
+            cubicTo(cx - 1f, ry - 30f, cx - 4f, ry - 25f, cx, ry - 15f)
+        }
+        drawPath(plumePath, color = Color(0xFFFFD54F))
+        // Shield (left)
+        drawRect(color = Color(0xFF1565C0), topLeft = Offset(cx - 13f, ry - 2f), size = Size(6f, 10f))
+        drawRect(color = Color(0xFFD4AF37), topLeft = Offset(cx - 13f, ry - 2f), size = Size(6f, 10f), style = Stroke(width = 1f))
+        // Sword (right)
+        drawLine(color = Color(0xFFCFD8DC), start = Offset(cx + 9f, ry - 4f), end = Offset(cx + 15f, ry + 8f), strokeWidth = 2f)
+        drawLine(color = Color(0xFFD4AF37), start = Offset(cx + 7f, ry - 2f), end = Offset(cx + 12f, ry - 5f), strokeWidth = 2.5f)
     }
-    drawPath(bodyPath, color = Color(0xFF90A4AE))
-    drawPath(bodyPath, color = Color(0xFF546E7A), style = Stroke(width = 1.5f))
-    drawLine(color = Color(0xFF546E7A), start = Offset(kx, ky + 4f), end = Offset(kx, ky + 22f), strokeWidth = 1.2f)
-
-    // Helmet
-    val helmetPath = Path().apply {
-        moveTo(kx - 10f, ky + 2f); lineTo(kx - 11f, ky - 6f)
-        arcTo(androidx.compose.ui.geometry.Rect(kx - 11f, ky - 18f, kx + 11f, ky + 4f), 180f, 180f, false)
-        lineTo(kx + 11f, ky - 6f); lineTo(kx + 10f, ky + 2f); close()
-    }
-    drawPath(helmetPath, color = Color(0xFFB0BEC5))
-    drawPath(helmetPath, color = Color(0xFF546E7A), style = Stroke(width = 1.5f))
-    drawLine(color = Color(0xFF1A1A2E), start = Offset(kx - 7f, ky - 5f), end = Offset(kx + 7f, ky - 5f), strokeWidth = 2.5f)
-
-    // Plume
-    val plumePath = Path().apply {
-        moveTo(kx, ky - 18f)
-        cubicTo(kx + 6f, ky - 30f, kx + 2f, ky - 36f, kx, ky - 34f)
-        cubicTo(kx - 2f, ky - 36f, kx - 6f, ky - 30f, kx, ky - 18f)
-    }
-    drawPath(plumePath, color = Color(0xFFFFD54F))
-
-    // Sword
-    drawLine(color = Color(0xFFCFD8DC), start = Offset(kx + 13f, ky + 6f), end = Offset(kx + 20f, ky + 32f), strokeWidth = 2f)
-    drawLine(color = Color(0xFFD4AF37), start = Offset(kx + 10f, ky + 8f), end = Offset(kx + 17f, ky + 5f), strokeWidth = 3f)
-    drawLine(color = Color(0xFF8D6E63), start = Offset(kx + 13f, ky + 6f), end = Offset(kx + 15f, ky + 12f), strokeWidth = 3.5f)
-
-    // Shield
-    val shieldPath = Path().apply {
-        moveTo(kx - 12f, ky + 4f); lineTo(kx - 22f, ky + 4f); lineTo(kx - 22f, ky + 20f)
-        cubicTo(kx - 22f, ky + 28f, kx - 12f, ky + 32f, kx - 12f, ky + 32f)
-        cubicTo(kx - 12f, ky + 32f, kx - 12f, ky + 28f, kx - 12f, ky + 20f); close()
-    }
-    drawPath(shieldPath, color = Color(0xFF1565C0))
-    drawPath(shieldPath, color = Color(0xFFD4AF37), style = Stroke(width = 1.5f))
-    drawLine(color = Color(0xFFD4AF37), start = Offset(kx - 17f, ky + 11f), end = Offset(kx - 17f, ky + 22f), strokeWidth = 2f)
-    drawLine(color = Color(0xFFD4AF37), start = Offset(kx - 21f, ky + 15f), end = Offset(kx - 13f, ky + 15f), strokeWidth = 2f)
 }
 
 // ── HUD ──────────────────────────────────────────────────────────────────────
